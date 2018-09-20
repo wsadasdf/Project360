@@ -9,12 +9,12 @@ implements ActionListener, WindowListener
 	
 	private TextField filler;
 	private Button testButton;
-	private int count;
+	private int path;
 	public PathAnalizer()
 	{
-		count = 0;
+		path = 0;
 		setLayout(new FlowLayout());
-		add(new Label("Path Analizer"));
+		add(new Label("Path"));
 		filler = new TextField("0",10);
 		filler.setEditable(true);
 		add(filler);
@@ -65,9 +65,8 @@ implements ActionListener, WindowListener
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		count++;
-		filler.setText(count + "");
-		
+		path = Integer.parseInt(filler.getText());
+		System.out.print(path);
 	}
 
 }
