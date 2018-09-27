@@ -7,26 +7,38 @@ public class PathAnalizer extends Frame
 implements ActionListener, WindowListener
 {
 	
-	private TextField filler;
-	private Button testButton;
-	private int path;
+	/**
+	 main class holds the window and the fields to be entered
+	 */
+	
+	//variable block
+	private static final long serialVersionUID = 7942054704709588561L;
+	private TextField name,durationField;
+	private Button enterButton, getButton;	//getButton calculates the required items
+	private int duration;
+	private String itemName = "";
+	private PathItem pathItem = null, iterater = null, dispIterater = null;
 	public PathAnalizer()
 	{
-		path = 0;
+		duration = 0;
 		setLayout(new FlowLayout());
-		add(new Label("Path"));
-		filler = new TextField("0",10);
-		filler.setEditable(true);
-		add(filler);
-		testButton = new Button("counter");
-		add(testButton);
-		testButton.addActionListener(this);
+		add(new Label("Path Name "));
+		name = new TextField("",10);
+		name.setEditable(true);
+		add(name);
+		add(new Label("Path Duration "));
+		durationField = new TextField("",10);
+		add(durationField);
+		enterButton = new Button("enter");
+		add(enterButton);
+		enterButton.addActionListener(this);
 		addWindowListener(this);
 		setTitle("Path Analizer");
 		setSize(250,100);
 		setVisible(true);
 		
 	}
+	
 	
 	public static void main(String[] args)
 	{
@@ -64,9 +76,40 @@ implements ActionListener, WindowListener
 	}
 
 	@Override
-	public void actionPerformed(ActionEvent e) {
-		path = Integer.parseInt(filler.getText());
-		System.out.print(path);
+	public void actionPerformed(ActionEvent e) 
+	{
+		if(e.getActionCommand().equals("enter"))
+		{
+			duration = Integer.parseInt(durationField.getText());
+			itemName = name.getText();
+			if(pathItem == null)
+			{
+				pathItem = new PathItem(duration,itemName);
+				iterater = pathItem;
+			}
+			else
+			{
+				while(iterater.nextItem != null)
+				{
+					iterater = iterater.nextItem;
+				}
+				iterater.nextItem = new PathItem(duration, itemName);
+			}
+		}
+		
+		
+		display();
+	}
+	private void display()
+	{
+		dispIterater = pathItem;
+		dispIterater.display();
+		while(dispIterater.nextItem != null)
+		{
+			dispIterater = dispIterater.nextItem;
+			dispIterater.display();
+		}
+		
 	}
 
 }
