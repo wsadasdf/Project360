@@ -13,7 +13,7 @@ implements ActionListener, WindowListener
 	
 	//variable block
 	private static final long serialVersionUID = 7942054704709588561L;
-	private TextField name,durationField;
+	private TextField name,durationField,dependencyField;
 	private Button enterButton, getButton, aboutButton, helpButton, restartButton, quitButton;	//getButton calculates the required items
 	private int duration;
 	private String itemName = "";
@@ -29,6 +29,11 @@ implements ActionListener, WindowListener
 		add(new Label("Path Duration "));
 		durationField = new TextField("",10);
 		add(durationField);
+		/*
+		add(new Label("Path Dependencies "));
+		durationField = new TextField("",10);
+		add(dependencyField);
+		*/
 		enterButton = new Button("enter");
 		add(enterButton);
 		//shan test
@@ -42,6 +47,7 @@ implements ActionListener, WindowListener
 		add(quitButton);
 		//shan test end
 		enterButton.addActionListener(this);
+		aboutButton.addActionListener(this);
 		helpButton.addActionListener(this);
 		quitButton.addActionListener(this);
 		addWindowListener(this);
