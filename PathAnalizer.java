@@ -14,7 +14,7 @@ implements ActionListener, WindowListener
 	//variable block
 	private static final long serialVersionUID = 7942054704709588561L;
 	private TextField name,durationField;
-	private Button enterButton, getButton;	//getButton calculates the required items
+	private Button enterButton, getButton, aboutButton, helpButton, restartButton, quitButton;	//getButton calculates the required items
 	private int duration;
 	private String itemName = "";
 	private PathItem pathItem = null, iterater = null, dispIterater = null;
@@ -31,10 +31,22 @@ implements ActionListener, WindowListener
 		add(durationField);
 		enterButton = new Button("enter");
 		add(enterButton);
+		//shan test
+		aboutButton = new Button("About");
+		add(aboutButton);
+		helpButton = new Button("Help");
+		add(helpButton);
+		restartButton = new Button("Restart");
+		add(restartButton);
+		quitButton = new Button("Quit");
+		add(quitButton);
+		//shan test end
 		enterButton.addActionListener(this);
+		helpButton.addActionListener(this);
+		quitButton.addActionListener(this);
 		addWindowListener(this);
 		setTitle("Path Analizer");
-		setSize(250,100);
+		setSize(250,250);
 		setVisible(true);
 		
 	}
@@ -95,10 +107,34 @@ implements ActionListener, WindowListener
 				}
 				iterater.nextItem = new PathItem(duration, itemName);
 			}
+			display();
 		}
-		
-		
-		display();
+		//shantest
+		if(e.getActionCommand().equals("Help"))
+		{
+			JFrame helpFrame = new JFrame("Help");
+			helpFrame.setVisible(true);
+			helpFrame.setSize(500,500);
+			JLabel helpLabel = new JLabel("Fillertext");
+			JPanel helpPanel = new JPanel();
+			helpFrame.add(helpPanel);
+			helpFrame.add(helpLabel);
+		}
+		if(e.getActionCommand().equals("About"))
+		{
+			JFrame aboutFrame = new JFrame("About");
+			aboutFrame.setVisible(true);
+			aboutFrame.setSize(500,500);
+			JLabel aboutLabel = new JLabel("Fillertext");
+			JPanel aboutPanel = new JPanel();
+			aboutFrame.add(aboutPanel);
+			aboutFrame.add(aboutLabel);
+		}
+		if(e.getActionCommand().equals("Quit"))
+		{
+			System.exit(0);
+		}
+		//shantest end
 	}
 	private void display()
 	{
@@ -111,5 +147,4 @@ implements ActionListener, WindowListener
 		}
 		
 	}
-
 }
