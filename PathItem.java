@@ -14,7 +14,6 @@ public class PathItem
 		this.dependencyStrings = dependencies;
 	}
 	
-	
 	public void addPath(PathItem toAdd)
 	{
 		this.nextItem = toAdd;
@@ -27,4 +26,27 @@ public class PathItem
 	{
 		return this.name;
 	}
+	
+	public int getDuration()
+	{
+		return this.duration;
+	}
+	
+	public String[] getDependencies()
+	{
+		return this.dependencyStrings;
+	}
+	
+	public int getSize()
+	{
+		int size = 1;
+		PathItem iterater = this.nextItem;
+		while(iterater != null)
+		{
+			size++;
+			iterater = iterater.nextItem;
+		}
+		return size;
+	}
+	
 }
