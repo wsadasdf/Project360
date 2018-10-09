@@ -284,12 +284,48 @@ implements ActionListener, WindowListener
 			}
 			else
 			{
-				checkFlag(iterater.getName().toString());
+				checkFlag(iterater.getName());
 			}
 		}
 		pathItem = iterater;
 	}
-
+	
+	/*
+	private void buildVector()
+	{
+		while (pathItem != null)
+		{
+			if (pathItem.mark == true)
+			{
+				SearchAddVector(pathItem.name)
+			}
+			else
+			{
+				pathItem = pathItem.nextItem;
+			}
+			SearchAddVector
+		}
+	}
+	
+	private void SearchAddVector(String name)
+	{
+		add to vector name
+		add to vector duration
+		iterater = pathItem;
+		for (int i = 0; i < iterater.length; i++)
+		{
+			if (iterater.dependencies.contains(name))
+			{
+				SearchAddVector(iterater.name)
+			}
+			else
+			{
+				iterater = iterater.nextItem;
+			}
+		}
+	}
+	*/
+	
 	public void windowOpened(WindowEvent evt) { }
 
 	public void windowClosed(WindowEvent evt) { }
