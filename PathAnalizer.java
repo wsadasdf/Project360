@@ -3,6 +3,8 @@ import javax.swing.*;
 import java.util.Scanner;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Vector;
+
 public class PathAnalizer extends Frame
 implements ActionListener, WindowListener
 {
@@ -14,10 +16,12 @@ implements ActionListener, WindowListener
 	private static final long serialVersionUID = 7942054704709588561L;
 	private TextField name,durationField,dependencyField;
 	private Button enterButton, finishButton, aboutButton, helpButton, restartButton, quitButton;	//getButton calculates the required items
-	private int duration;
+	private int duration, longest;
 	private String[] dependencies;
 	private String itemName = "";
 	private PathItem pathItem = null, iterater = null, dispIterater = null;
+	private boolean mark;
+	private Vector<PathItem> paths = new Vector<PathItem>(1);
 	
 	public PathAnalizer()
 	{
@@ -136,7 +140,7 @@ implements ActionListener, WindowListener
 			
 			if (pathItem == null)
 			{
-				pathItem = new PathItem(duration,itemName,dependencies);
+				pathItem = new PathItem(duration,itemName,dependencies,mark);
 				iterater = pathItem;
 			}
 
@@ -147,7 +151,7 @@ implements ActionListener, WindowListener
 					iterater = iterater.nextItem;
 				}
 
-				iterater.nextItem = new PathItem(duration, itemName,dependencies);
+				iterater.nextItem = new PathItem(duration, itemName,dependencies,mark);
 			}
 			display();
 			name.setText(null);
@@ -236,6 +240,81 @@ implements ActionListener, WindowListener
 		return result;
 	}
 	
+	
+	private void dependencyFlag()
+	{
+		iterater = pathItem;
+		while(iterater!=null)
+		{
+			if(iterater.getDependencies() != null)
+			{
+				iterater.mark = true;
+			}
+			iterater = iterater.nextItem;
+		}
+		pathItem = iterater;
+	}
+	
+	private void checkFlag(String name) 
+	{
+		iterater = pathItem;
+		while(iterater!=null)
+		{
+			for(int i = 0; i < iterater.getDependencies().length; i++)
+			{
+				if ((iterater.getDependencies()[i].equals(name)))
+				{
+					iterater.mark = false;
+				}
+				else
+				{
+					iterater.mark = true;
+				}
+			}
+			
+		}
+	}
+	
+	private void checkDependency(String name)
+	{
+		iterater = pathItem;
+		dependencyFlag();
+		while(iterater!=null)
+		{
+			if (iterater.mark != true)
+			{
+				iterater = iterater.nextItem;
+			}
+			else
+			{
+				checkFlag(iterater.getName());
+			}
+		}
+		pathItem = iterater;
+	}
+	
+	void add(PathItem toAdd)
+	{
+		paths.add(toAdd);
+	}
+	
+	PathItem findLongest(Vector<PathItem> list)		//finds longest path
+	{
+		PathItem result = list.get(0);
+		
+		for(int i = 0; i < list.size(); i++)
+		{
+			for(int j = 1; j < list.size(); j++)
+			{
+				if(list.get(i).calcLength() > list.get(j).calcLength() && list.get(i).calcLength() > result.calcLength())
+				{
+					result = list.get(i);
+				}
+			}
+		}
+		return result;
+	}
+
 	public void windowOpened(WindowEvent evt) { }
 
 	public void windowClosed(WindowEvent evt) { }

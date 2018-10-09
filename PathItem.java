@@ -6,12 +6,17 @@ public class PathItem
 	private String name = "";
 	public String[] dependencyStrings;
 	public PathItem nextItem = null;
+	private int length;
 	
-	public PathItem(int duration, String name, String[] dependencies)
+	public boolean mark = false;
+	
+	public PathItem(int duration, String name, String[] dependencies, boolean mark)
 	{
 		this.duration = duration;
 		this.name = name;
 		this.dependencyStrings = dependencies;
+		this.mark = mark;
+		this.length = 0;
 	}
 	
 	public void addPath(PathItem toAdd)
@@ -49,4 +54,19 @@ public class PathItem
 		return size;
 	}
 	
+	public int calcLength()
+	{
+		this.length = this.duration;
+		PathItem iterater = this.nextItem;
+		while(iterater != null)
+		{
+			this.length += iterater.getLength();
+		}
+		return this.length;
+	}
+	
+	public int getLength()
+	{
+		return this.length;
+	}
 }
