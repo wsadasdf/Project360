@@ -18,6 +18,7 @@ implements ActionListener, WindowListener
 	private String[] dependencies;
 	private String itemName = "";
 	private PathItem pathItem = null, iterater = null, dispIterater = null;
+	private boolean mark;
 	
 	public PathAnalizer()
 	{
@@ -136,7 +137,7 @@ implements ActionListener, WindowListener
 			
 			if (pathItem == null)
 			{
-				pathItem = new PathItem(duration,itemName,dependencies);
+				pathItem = new PathItem(duration,itemName,dependencies,mark);
 				iterater = pathItem;
 			}
 
@@ -147,7 +148,7 @@ implements ActionListener, WindowListener
 					iterater = iterater.nextItem;
 				}
 
-				iterater.nextItem = new PathItem(duration, itemName,dependencies);
+				iterater.nextItem = new PathItem(duration, itemName,dependencies,mark);
 			}
 			display();
 			name.setText(null);
@@ -235,6 +236,25 @@ implements ActionListener, WindowListener
 		System.out.print(result.getName());				//testing search function
 		return result;
 	}
+	
+	
+	 private void dependencyFlag()
+	{
+		iterater = pathItem;
+		while(iterater!=null)
+		{
+			if(iterater.getDependencies() != null)
+			{
+				iterater.mark = true;
+			}
+			else
+			{
+				iterater = iterater.nextItem;
+			}
+		}
+		pathItem = iterater;
+	}
+	
 	
 	public void windowOpened(WindowEvent evt) { }
 

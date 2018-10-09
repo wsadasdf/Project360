@@ -7,11 +7,14 @@ public class PathItem
 	public String[] dependencyStrings;
 	public PathItem nextItem = null;
 	
-	public PathItem(int duration, String name, String[] dependencies)
+	public boolean mark = false;
+	
+	public PathItem(int duration, String name, String[] dependencies, boolean mark)
 	{
 		this.duration = duration;
 		this.name = name;
 		this.dependencyStrings = dependencies;
+		this.mark = mark;
 	}
 	
 	public void addPath(PathItem toAdd)
