@@ -361,7 +361,6 @@ implements ActionListener, WindowListener
 	public void windowActivated(WindowEvent arg0) {
 
 		// TODO Auto-generated method stub
-
 		
 
 	}
