@@ -75,6 +75,34 @@ implements ActionListener, WindowListener
 			duration = Integer.parseInt(durationField.getText());
 			itemName = name.getText();
 			dependencies = dependencyField.getText().split(",");
+			
+			//shantesting
+			String test = dependencyField.getText();
+			String test2 = name.getText();
+			
+			if (test.contains(test2))
+			{
+				JFrame dependencyFrame = new JFrame("Dependency Error");
+				dependencyFrame.setVisible(true);
+				dependencyFrame.setSize(500,500);
+				JLabel dependencyLabel = new JLabel("Fillertext");
+				JPanel dependencyPanel = new JPanel();
+				dependencyFrame.add(dependencyPanel);
+				dependencyFrame.add(dependencyLabel);
+			}
+			
+			if (duration < 0) //fuck this
+			{
+				JFrame intErrorFrame = new JFrame("Integer Error");
+				intErrorFrame.setVisible(true);
+				intErrorFrame.setSize(500,500);
+				JLabel intErrorLabel = new JLabel("Fillertext");
+				JPanel intErrorPanel = new JPanel();
+				intErrorFrame.add(intErrorPanel);
+				intErrorFrame.add(intErrorLabel);
+			}
+			//shantesting
+			
 			if(pathItem == null)
 			{
 				pathItem = new PathItem(duration,itemName,dependencies);
