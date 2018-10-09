@@ -27,4 +27,9 @@ public class PathItem
 	{
 		return this.name;
 	}
+	
+	public int getDuration()
+	{
+		return this.duration;
+	}
 }
