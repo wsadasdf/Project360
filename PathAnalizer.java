@@ -238,7 +238,7 @@ implements ActionListener, WindowListener
 	}
 	
 	
-	 private void dependencyFlag()
+	private void dependencyFlag()
 	{
 		iterater = pathItem;
 		while(iterater!=null)
@@ -247,15 +247,41 @@ implements ActionListener, WindowListener
 			{
 				iterater.mark = true;
 			}
-			else
-			{
-				iterater = iterater.nextItem;
-			}
+			iterater = iterater.nextItem;
 		}
 		pathItem = iterater;
 	}
 	
+	private void checkFlag(String name) 
+	{
+		iterater = pathItem;
+		while(iterater!=null)
+		{
+			if ((iterater.getDependencies().toString()).contains(name))
+			{
+				iterater.mark = false;
+			}
+		}
+	}
 	
+	private void checkDependency(String name)
+	{
+		iterater = pathItem;
+		dependencyFlag();
+		while(iterater!=null)
+		{
+			if (iterater.mark != true)
+			{
+				iterater = iterater.nextItem;
+			}
+			else
+			{
+				checkFlag(iterater.getName().toString());
+			}
+		}
+		pathItem = iterater;
+	}
+
 	public void windowOpened(WindowEvent evt) { }
 
 	public void windowClosed(WindowEvent evt) { }
