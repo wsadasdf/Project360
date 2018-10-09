@@ -27,4 +27,21 @@ public class PathItem
 	{
 		return this.name;
 	}
+	
+	public int getDuration()
+	{
+		return this.duration;
+	}
+	
+	public int getSize()
+	{
+		int size = 1;
+		PathItem iterater = this.nextItem;
+		while(iterater != null)
+		{
+			size++;
+			iterater = iterater.nextItem;
+		}
+		return size;
+	}
 }
