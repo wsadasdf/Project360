@@ -86,6 +86,42 @@ implements ActionListener, WindowListener
 			itemName = name.getText();
 			dependencies = dependencyField.getText().split(",");
 			
+			String test = dependencyField.getText();
+			String test2 = name.getText();
+			
+			if (test.contains(test2))
+			{
+				JFrame dependencyFrame = new JFrame("Dependency Error");
+				dependencyFrame.setVisible(true);
+				dependencyFrame.setSize(500,500);
+				JLabel dependencyLabel = new JLabel("Cannot depend on itself!");
+				JPanel dependencyPanel = new JPanel();
+				dependencyFrame.add(dependencyPanel);
+				dependencyFrame.add(dependencyLabel);
+			}
+			/*
+			if (search(itemName) == null && (pathItem.size() > 1))
+			{
+				JFrame dependencyFrame = new JFrame("Dependency Error");
+				dependencyFrame.setVisible(true);
+				dependencyFrame.setSize(500,500);
+				JLabel dependencyLabel = new JLabel("Circular function detected!");
+				JPanel dependencyPanel = new JPanel();
+				dependencyFrame.add(dependencyPanel);
+				dependencyFrame.add(dependencyLabel);
+			}*/
+			
+			if (duration < 0)
+			{
+				JFrame intErrorFrame = new JFrame("Integer Error");
+				intErrorFrame.setVisible(true);
+				intErrorFrame.setSize(500,500);
+				JLabel intErrorLabel = new JLabel("Integers cannot be less than 0");
+				JPanel intErrorPanel = new JPanel();
+				intErrorFrame.add(intErrorPanel);
+				intErrorFrame.add(intErrorLabel);
+			}
+			
 			if(pathItem == null)
 			{
 				pathItem = new PathItem(duration,itemName,dependencies);
