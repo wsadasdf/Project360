@@ -8,15 +8,21 @@ public class PathItem
 	public PathItem nextItem = null;
 	private int length;
 	private boolean head = false;
+	private int depth;
 	
-	public boolean mark = false;
 	
-	public PathItem(int duration, String name, String[] dependencies, boolean mark)
+	public PathItem(int duration, String name, String[] dependencies)
 	{
 		this.duration = duration;
 		this.name = name;
 		this.dependencyStrings = dependencies;
-		this.mark = mark;
+		this.length = 0;
+	}
+	public PathItem(int duration, String name)
+	{
+		this.duration = duration;
+		this.name = name;
+		this.dependencyStrings = null;
 		this.length = 0;
 	}
 	
@@ -73,7 +79,7 @@ public class PathItem
 	
 	public PathItem copy()
 	{
-		PathItem temp = new PathItem(this.duration,this.name,this.dependencyStrings,this.mark);
+		PathItem temp = new PathItem(this.duration,this.name,this.dependencyStrings);
 		temp.nextItem = null;
 		return temp;
 	}
@@ -81,5 +87,17 @@ public class PathItem
 	public boolean isHead()
 	{
 		return head;
+	}
+	
+	public int getDepth()
+	{
+		this.depth = 1;
+		PathItem iter = this;
+		while(iter != null)
+		{
+			depth++;
+			iter = iter.nextItem;
+		}
+		return depth;
 	}
 }

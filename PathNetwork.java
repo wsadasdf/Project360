@@ -1,19 +1,19 @@
 package main_pkg;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+
+
 public class PathNetwork 
 {
-	private String[] dependencyStrings;
-	private PathItem[] dependencies;
-	private String name;
-	private int duration;
+	public PathItem pathItem;
+	public ArrayList<PathItem> nextItem;
 	
-	public PathNetwork(String[] dependencyStrings, String name, int duration)
+	public PathNetwork(PathItem pathItem)
 	{
-		this.dependencyStrings = dependencyStrings;
-		this.name = name;
-		this.duration = duration;
-		this.dependencies = new PathItem[dependencyStrings.length];
-		
+		this.pathItem = pathItem;
+		nextItem = new ArrayList<PathItem>();
 	}
-
+	
+	
 }

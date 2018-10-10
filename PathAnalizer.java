@@ -4,6 +4,8 @@ import java.util.Scanner;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Vector;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 public class PathAnalizer extends Frame
 implements ActionListener, WindowListener
@@ -21,7 +23,10 @@ implements ActionListener, WindowListener
 	private String itemName = "";
 	private PathItem pathItem = null, iterater = null, dispIterater = null, testItem = null;
 	private boolean mark;
+	private PathItem testing;
+	private PathNetwork network;
 	private Vector<PathItem> paths = new Vector<PathItem>(1);
+	private ArrayList<PathItem> events = new ArrayList<PathItem>();
 	
 	public PathAnalizer()
 	{
@@ -90,12 +95,51 @@ implements ActionListener, WindowListener
 		{
 			duration = Integer.parseInt(durationField.getText());
 			itemName = name.getText();
-			dependencies = dependencyField.getText().split(",");
+			String temp = dependencyField.getText();
+			if(events.isEmpty())
+			{
+				if(temp.equals(""))
+				{
+					dependencies = null;
+					events.add(new PathItem(duration,itemName));
+				}
+				else
+				{
+					dependencies = temp.split(",");
+					events.add(new PathItem(duration,itemName,dependencies));
+				}
+			}
+			else
+			{
+				if(temp.equals(""))
+				{
+					dependencies = null;
+					events.add(new PathItem(duration,itemName));
+				}
+				else
+				{
+					dependencies = temp.split(",");
+					events.add(new PathItem(duration,itemName,dependencies));
+				}
+			}
+		}
+		//	}
 			
-			String test = dependencyField.getText();
-			String test2 = name.getText();
-			Object test3 = Integer.parseInt(durationField.getText());
 			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			
+			//String test = dependencyField.getText();
+			//String test2 = name.getText();
+			//Object test3 = Integer.parseInt(durationField.getText());
+			/*
 			if (test.contains(test2) && pathItem.getSize() > 1)
 			{
 				JFrame dependencyFrame = new JFrame("Dependency Error");
@@ -107,7 +151,7 @@ implements ActionListener, WindowListener
 				dependencyFrame.add(dependencyLabel);
 			}
 			
-			/*
+			
 			else if ((pathItem == null) && pathItem.getSize() > 1)
 			{
 				JFrame identicalFrame = new JFrame("Identical Name Error");
@@ -141,7 +185,7 @@ implements ActionListener, WindowListener
 				dependencyFrame.add(dependencyLabel);
 			}*/
 			
-			if (pathItem == null)
+	/*		if (pathItem == null)
 			{
 				pathItem = new PathItem(duration,itemName,dependencies,mark);
 				iterater = pathItem;
@@ -154,21 +198,66 @@ implements ActionListener, WindowListener
 					iterater = iterater.nextItem;
 				}
 
-				iterater.nextItem = new PathItem(duration, itemName,dependencies,mark);
-			}
-			display();
+				iterater.nextItem = new PathItem(duration, itemName,dependencies,mark);*/
+			//}
+			printPath(pathItem);
+			System.out.print("\n");
 			name.setText(null);
 			durationField.setText("");
 			dependencyField.setText(null);
-		}
+		//}
 		
 		if(e.getActionCommand().equals("finish"))
 		{	
-			markDependency();
-			buildVector();
-			printPath(paths.get(0));
-			//buildNetwork(pathItem);
+			Iterator<PathItem> iter = events.iterator();
+			//PathItem iter = pathItem;
+			while((iter.hasNext()))
+			{
+				PathItem temp = iter.next();
+				if(temp.dependencyStrings == null)
+				{
+					network = new PathNetwork(temp.copy());
+					iter.remove();
+				}
+			}
 			
+			iter = events.iterator();
+			while(iter.hasNext())
+			{
+				PathItem temp = iter.next();
+				if(searchDependencies(network.pathItem.getName(),temp))
+				{
+					network.nextItem.add(temp.copy());
+					iter.remove();
+				}
+			}
+			iter = events.iterator();
+			while(iter.hasNext())
+			{
+				PathItem temp = iter.next();
+				
+				for(int i = 0; i < network.nextItem.size(); i++)
+				{
+					PathItem netIter = network.nextItem.get(i);
+					if(!searchDependencies(netIter.getName(), temp))
+					{
+						netIter = netIter.nextItem;
+					}
+					else
+					{
+						while(netIter != null)
+						{
+							if(searchDependencies(netIter.getName(), temp))
+							{
+								netIter.nextItem = temp;
+							}
+							netIter = netIter.nextItem;
+						}
+					}
+				}
+			}
+			printNetwork(network);
+		
 		}
 
 		//shantest
@@ -208,7 +297,7 @@ implements ActionListener, WindowListener
 	{
 		dispIterater = pathItem;
 		dispIterater.display();
-		while(dispIterater.nextItem != null)
+		while(dispIterater != null)
 		{
 			dispIterater = dispIterater.nextItem;
 			dispIterater.display();
@@ -225,7 +314,7 @@ implements ActionListener, WindowListener
 		return result;
 	}
 	
-	
+	/*
 	private PathItem search(String name)
 	{
 		PathItem result = null;
@@ -258,7 +347,6 @@ implements ActionListener, WindowListener
 			}
 			iterater = iterater.nextItem;
 		}
-		iterater = pathItem;
 		
 	}
 	
@@ -290,12 +378,13 @@ implements ActionListener, WindowListener
 		{
 			if (iterater.mark != true) //if false continue through list
 			{
-				iterater = iterater.nextItem; 
+				 
 			}
 			else
 			{
 				checkFlag(iterater.getName()); //if marked true check linked list for dependency and mark t or f
 			}
+			iterater = iterater.nextItem;
 		}
 		 //pathItem is fixed by iterater
 	}
@@ -314,7 +403,7 @@ implements ActionListener, WindowListener
 				tempIterater = tempIterater.nextItem;
 				SearchAddVector(iterater.getName());
 				iterater = iterater.nextItem;
-				paths.add(testItem);
+				testing = testItem;
 				testItem = null;
 			}
 			else
@@ -323,7 +412,7 @@ implements ActionListener, WindowListener
 			}
 		}
 	}
-	
+	*/
 	private void SearchAddVector(String name)
 	{
 		iterater = pathItem;
@@ -372,17 +461,80 @@ implements ActionListener, WindowListener
 	
 	public void printPath(PathItem path)
 	{
+		
+		Iterator<PathItem> iter = events.iterator();
+		while(iter.hasNext())
+		{
+			System.out.print(iter.next().getName()+"->");
+		}
+		//if(path == null)
+		//{
+		//	return;
+		//}
+		//else
+	//	{
+		//	System.out.print(path.getName()+"->");
+		//	printPath(path.nextItem);
+			
+		//}
+	}
+	public void printPlus(PathItem path)
+	{
+		if(path == null)
+			return;
+		else
+		{
+			System.out.print(path.getName()+"->");
+			printPlus(path.nextItem);
+		}
+	}
+	
+	
+	public void printNetwork(PathNetwork path)
+	{
 		if(path == null)
 		{
 			return;
 		}
 		else
 		{
-			System.out.print(path.getName()+"->");
-			printPath(path.nextItem);
+			System.out.print(path.pathItem.getName()+"->\t");
+			for(int i = 0; i < path.nextItem.size(); i++)
+			{
+				printPlus(path.nextItem.get(i));
+				//System.out.print(path.nextItem.get(i).calcLength());
+				System.out.print("\n \t");
+			}
 			
 		}
 	}
+	
+	
+	
+	
+	
+	
+	
+	public boolean searchDependencies(String str, PathItem item)
+	{
+		boolean result = false;
+		if(item.dependencyStrings == null)
+			return false;
+		String[] list = item.dependencyStrings;
+		for(int i = 0; i < list.length; i++)
+		{
+			if(list[i].equals(str))
+			{
+				result = true;
+				break;
+			}
+		}
+		return result;
+	}
+	
+	
+	
+	
 	
 	
 	
