@@ -3,6 +3,8 @@ import javax.swing.*;
 import java.util.Scanner;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.Vector;
+
 public class PathAnalizer extends Frame
 implements ActionListener, WindowListener
 {
@@ -14,10 +16,12 @@ implements ActionListener, WindowListener
 	private static final long serialVersionUID = 7942054704709588561L;
 	private TextField name,durationField,dependencyField;
 	private Button enterButton, finishButton, aboutButton, helpButton, restartButton, quitButton;	//getButton calculates the required items
-	private int duration;
+	private int duration, longest;
 	private String[] dependencies;
 	private String itemName = "";
-	private PathItem pathItem = null, iterater = null, dispIterater = null;
+	private PathItem pathItem = null, iterater = null, dispIterater = null, testItem = null;
+	private boolean mark;
+	private Vector<PathItem> paths = new Vector<PathItem>(1);
 	
 	public PathAnalizer()
 	{
@@ -90,7 +94,7 @@ implements ActionListener, WindowListener
 			String test2 = name.getText();
 			Object test3 = Integer.parseInt(durationField.getText());
 			
-			if (test.contains(test2))
+			if (test.contains(test2) && pathItem.getSize() > 1)
 			{
 				JFrame dependencyFrame = new JFrame("Dependency Error");
 				dependencyFrame.setVisible(true);
@@ -100,16 +104,17 @@ implements ActionListener, WindowListener
 				dependencyFrame.add(dependencyPanel);
 				dependencyFrame.add(dependencyLabel);
 			}
+			
 			/*
-			else if (search(name.getText()) != null && (pathItem.getSize() > 1))
+			else if ((pathItem == null) && pathItem.getSize() > 1)
 			{
-				JFrame dependencyFrame = new JFrame("Dependency Error");
-				dependencyFrame.setVisible(true);
-				dependencyFrame.setSize(500,500);
-				JLabel dependencyLabel = new JLabel("Circular function detected!");
-				JPanel dependencyPanel = new JPanel();
-				dependencyFrame.add(dependencyPanel);
-				dependencyFrame.add(dependencyLabel);
+				JFrame identicalFrame = new JFrame("Identical Name Error");
+				identicalFrame.setVisible(true);
+				identicalFrame.setSize(500,500);
+				JLabel identicalLabel = new JLabel("Identical name function detected!");
+				JPanel identicalPanel = new JPanel();
+				identicalFrame.add(identicalPanel);
+				identicalFrame.add(identicalLabel);
 			}*/
 			
 			else if (duration < 0)
@@ -136,7 +141,7 @@ implements ActionListener, WindowListener
 			
 			if (pathItem == null)
 			{
-				pathItem = new PathItem(duration,itemName,dependencies);
+				pathItem = new PathItem(duration,itemName,dependencies,mark);
 				iterater = pathItem;
 			}
 
@@ -147,7 +152,7 @@ implements ActionListener, WindowListener
 					iterater = iterater.nextItem;
 				}
 
-				iterater.nextItem = new PathItem(duration, itemName,dependencies);
+				iterater.nextItem = new PathItem(duration, itemName,dependencies,mark);
 			}
 			display();
 			name.setText(null);
@@ -236,6 +241,121 @@ implements ActionListener, WindowListener
 		return result;
 	}
 	
+	
+	private void dependencyFlag()
+	{
+		iterater = pathItem;
+		while(iterater!=null)
+		{
+			if(iterater.getDependencies() != null) 
+			{
+				iterater.mark = true; //mark any list with dependencies as True
+			}
+			iterater = iterater.nextItem;
+		}
+		pathItem = iterater;
+	}
+	
+	private void checkFlag(String name) 
+	{
+		iterater = pathItem; 
+		while(iterater!=null) 
+		{
+			for(int i = 0; i < iterater.getDependencies().length; i++) //for loop check every dependency
+			{
+				if ((iterater.getDependencies()[i].equals(name))) 
+				{
+					iterater.mark = false; //if the dependencies contain the string name change to false
+				}
+				else
+				{
+					iterater.mark = true; //else remain true
+				}
+			}
+		}
+	}
+	
+	private void checkDependency(String name)
+	{
+		iterater = pathItem;
+		dependencyFlag(); //mark T/F rids of head or single nodes
+		while(iterater!=null)
+		{
+			if (iterater.mark != true) //if false continue through list
+			{
+				iterater = iterater.nextItem; 
+			}
+			else
+			{
+				checkFlag(iterater.getName()); //if marked true check linked list for dependency and mark t or f
+			}
+		}
+		pathItem = iterater; //pathItem is fixed by iterater
+	}
+	
+	
+	private void buildVector()
+	{
+		while (pathItem != null)
+		{
+			if (pathItem.mark == true)
+			{
+				testItem = pathItem.copy();
+				testItem = testItem.nextItem;
+				SearchAddVector(pathItem.getName());
+				pathItem = pathItem.nextItem;
+				paths.add(testItem);
+				testItem = null;
+			}
+			else
+			{
+				pathItem = pathItem.nextItem;
+			}
+		}
+	}
+	
+	private void SearchAddVector(String name)
+	{
+		iterater = pathItem;
+		while (iterater != null)
+		{
+			for(int i = 0; i < iterater.getDependencies().length; i++) 
+			{
+				if ((iterater.getDependencies()[i].equals(name)))
+				{
+					testItem = iterater.copy();
+					testItem = testItem.nextItem;
+					SearchAddVector(iterater.getName());
+				}
+			}
+			iterater = iterater.nextItem;
+		}
+	}
+	
+	
+	void add(PathItem toAdd)
+	{
+		paths.add(toAdd);
+	}
+	
+	
+	PathItem findLongest(Vector<PathItem> list)		//finds longest path
+	{
+		PathItem result = list.get(0);
+		
+		for(int i = 0; i < list.size(); i++)
+		{
+			for(int j = 1; j < list.size(); j++)
+			{
+				if(list.get(i).calcLength() > list.get(j).calcLength() && list.get(i).calcLength() > result.calcLength())
+				{
+					result = list.get(i);
+				}
+			}
+		}
+		return result;
+	}
+
 	public void windowOpened(WindowEvent evt) { }
 
 	public void windowClosed(WindowEvent evt) { }
