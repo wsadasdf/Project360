@@ -4,6 +4,8 @@ import java.util.Scanner;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.Vector;
+import java.util.Iterator;
+import java.util.ArrayList;
 
 public class PathAnalizer extends Frame
 implements ActionListener, WindowListener
@@ -21,7 +23,10 @@ implements ActionListener, WindowListener
 	private String itemName = "";
 	private PathItem pathItem = null, iterater = null, dispIterater = null, testItem = null;
 	private boolean mark;
+	private PathItem testing;
+	private PathNetwork network;
 	private Vector<PathItem> paths = new Vector<PathItem>(1);
+	private ArrayList<PathItem> events = new ArrayList<PathItem>();
 	
 	public PathAnalizer()
 	{
@@ -88,87 +93,101 @@ implements ActionListener, WindowListener
 	{
 		if(e.getActionCommand().equals("enter"))
 		{
+			
 			duration = Integer.parseInt(durationField.getText());
 			itemName = name.getText();
-			dependencies = dependencyField.getText().split(",");
+			String temp = dependencyField.getText();
 			
-			String test = dependencyField.getText();
-			String test2 = name.getText();
-			Object test3 = Integer.parseInt(durationField.getText());
-			
-			if (test.contains(test2) && pathItem.getSize() > 1)
+			if(events.isEmpty())
 			{
-				JFrame dependencyFrame = new JFrame("Dependency Error");
-				dependencyFrame.setVisible(true);
-				dependencyFrame.setSize(500,500);
-				JLabel dependencyLabel = new JLabel("Network node cannot depend on itself!");
-				JPanel dependencyPanel = new JPanel();
-				dependencyFrame.add(dependencyPanel);
-				dependencyFrame.add(dependencyLabel);
-			}
-			
-			/*
-			else if ((pathItem == null) && pathItem.getSize() > 1)
-			{
-				JFrame identicalFrame = new JFrame("Identical Name Error");
-				identicalFrame.setVisible(true);
-				identicalFrame.setSize(500,500);
-				JLabel identicalLabel = new JLabel("Identical name function detected!");
-				JPanel identicalPanel = new JPanel();
-				identicalFrame.add(identicalPanel);
-				identicalFrame.add(identicalLabel);
-			}*/
-			
-			else if (duration < 0)
-			{
-				JFrame intErrorFrame = new JFrame("Integer Error");
-				intErrorFrame.setVisible(true);
-				intErrorFrame.setSize(500,500);
-				JLabel intErrorLabel = new JLabel("Integers cannot be less than 0!");
-				JPanel intErrorPanel = new JPanel();
-				intErrorFrame.add(intErrorPanel);
-				intErrorFrame.add(intErrorLabel);
-			}
-			
-			/*else if (pathItem == null && dependencies != null)
-			{
-				JFrame dependencyFrame = new JFrame("Dependency Error");
-				dependencyFrame.setVisible(true);
-				dependencyFrame.setSize(500,500);
-				JLabel dependencyLabel = new JLabel("Head node cannot contain dependencies!");
-				JPanel dependencyPanel = new JPanel();
-				dependencyFrame.add(dependencyPanel);
-				dependencyFrame.add(dependencyLabel);
-			}*/
-			
-			if (pathItem == null)
-			{
-				pathItem = new PathItem(duration,itemName,dependencies,mark);
-				iterater = pathItem;
-			}
-
+				if(temp.equals(""))
+				{
+					dependencies = null;
+					events.add(new PathItem(duration,itemName));
+				}
+				else
+				{
+					dependencies = temp.split(",");
+					events.add(new PathItem(duration,itemName,dependencies));					}
+				}
 			else
 			{
-				while(iterater.nextItem != null)
+				if(temp.equals(""))
 				{
-					iterater = iterater.nextItem;
+					dependencies = null;
+					events.add(new PathItem(duration,itemName));
+				}					
+				else
+				{
+					dependencies = temp.split(",");
+					events.add(new PathItem(duration,itemName,dependencies));
 				}
-
-				iterater.nextItem = new PathItem(duration, itemName,dependencies,mark);
 			}
-			display();
+		}
+		//	}
+			/*
+			printPath(pathItem);
+			PathItem iterator = pathItem;
+			System.out.print("\n");*/
 			name.setText(null);
 			durationField.setText("");
 			dependencyField.setText(null);
-		}
-		
-		if(e.getActionCommand().equals("finish"))
+				
+		if(e.getActionCommand().equals("finish"))						//finish
 		{	
-			markDependency();
-			buildVector();
-			printPath(paths.get(0));
-			//buildNetwork(pathItem);
+			Iterator<PathItem> iter = events.iterator();
+			while((iter.hasNext()))
+			{
+				PathItem temp = iter.next();
+				if(temp.dependencyStrings == null)
+				{
+					network = new PathNetwork(temp.copy());
+					iter.remove();
+				}
+			}
 			
+			iter = events.iterator();
+			while(iter.hasNext())
+			{
+				PathItem temp = iter.next();
+				if(searchDependencies(network.pathItem.getName(),temp))
+				{
+					network.nextItem.add(temp.copy());
+					//iter.remove();
+				}
+			}
+			iter = events.iterator();
+			while(iter.hasNext())
+			{
+				PathItem temp = iter.next();
+				
+				for(int i = 0; i < network.nextItem.size(); i++)
+				{
+					PathItem netIter = network.nextItem.get(i);
+
+					
+						while(netIter != null)
+						{
+							
+							if(searchDependencies(netIter.getName(), temp))
+							{
+								netIter.nextItem = temp.copy();
+							}
+							netIter = netIter.nextItem;
+						}
+				}
+			}
+			String output = printNetwork(network);
+			output += "\n" +printLongest(network);
+			System.out.print(output);
+			JFrame outputFrame = new JFrame("Output");
+			outputFrame.setVisible(true);
+			outputFrame.setSize(425,650);
+			JLabel outputLabel = new JLabel();
+			outputLabel.setText(output);
+			JPanel outputPanel = new JPanel();
+			outputFrame.add(outputPanel);
+			outputFrame.add(outputLabel);
 		}
 
 		//shantest
@@ -177,7 +196,7 @@ implements ActionListener, WindowListener
 		{
 			JFrame helpFrame = new JFrame("Help");
 			helpFrame.setVisible(true);
-			helpFrame.setSize(425,700);
+			helpFrame.setSize(425,650);
 			JLabel helpLabel = new JLabel();
 			helpLabel.setText("<html><p style=\"width:300px\">"+"The input consists of multiple occurences of the following: activity name, duration, and dependencies (predecessors).<br><br>There is no maximum on the number of activities and predecessors. <br><br>Activity names can be multiple characters. <br><br>Duration must be an integer.<br><br>If another user input is found, then an error is displayed, and the user must re-enter another input before proceeding. The starting node or nodes do not have predecessors. Once all inputs are completed, then the processing can begin.<br><br>Output:<br>Pressing the enter button enters the information that is in the input fields into a hidden list that will be printed upon pressing the finish button. Input field is then cleared.<br><br>Pressing the finish button prints a list of all paths in the network that were submitted, with the duration of each path. The output field consists of the names of all activities in the path, displayed in descending order of duration.<br><br>About:<br>Prompts a new window that explains the project introduction and the overview of the program.<br><br>Restart:<br>Clears all fields of any inputs or outputs and restarts the process of inputting. Upon clicking, all inputs and paths must be re-entered and resubmitted.<br><br>Quit:<br>Halts any processes and quits out of the program immediately. No data will be saved."+"</p></html>");
 			JPanel helpPanel = new JPanel();
@@ -189,12 +208,20 @@ implements ActionListener, WindowListener
 		{
 			JFrame aboutFrame = new JFrame("About");
 			aboutFrame.setVisible(true);
-			aboutFrame.setSize(425,400);
+			aboutFrame.setSize(425,450);
 			JLabel aboutLabel = new JLabel("Fillertext");
-			aboutLabel.setText("<html><p style=\"width:300px\">"+"Project Introduction:<br>The project is designed to analyze a network diagram and determine all the paths in the network. A consumer can continue to input the activity name, duration, and dependencies until they press the finish button, where the list of all the activity names and dependencies are displayed by duration amount in decreasing order.<br><br>Overview of the program:<br>The program analyzes a network diagram and determines all the paths in the network. There are certain fields for inputting information (activity name, duration, dependencies), a certain button that can reset the current activity list (restart), a button that brings up the help menu for any issues regarding the program (restart), and another button that allows a user to exit out of the program in its entirety (quit). The output of the program is a network diagram with a list of the user-inputted activity names, sorted in decreasing order. Afterwards, there should be another prompt that allows one to reset the field and continue again."+"</p></html>");
+			aboutLabel.setText("<html><p style=\"width:300px\">"+"Project Introduction:<br>The project is designed to analyze a network diagram and determine all the paths in the network. A consumer can continue to input the activity name, duration, and dependencies until they press the finish button, where the list of all the activity names and dependencies are displayed by duration amount in decreasing order.<br><br>Overview of the program:<br>The program analyzes a network diagram and determines all the paths in the network. There are certain fields for inputting information (activity name, duration, dependencies), a certain button that can reset the current activity list (restart), a button that brings up the help menu for any issues regarding the program (restart), and another button that allows a user to exit out of the program in its entirety (quit). The output of the program is a network diagram with a list of the user-inputted activity names, sorted in decreasing order. Afterwards, there should be another prompt that allows one to reset the field and continue again.<br><br>This application is a team project assignment for CSE360: Introduction to Software Engineering.<br><br>Team Members:<br>Duncan Everhart<br>Shaun Xiong"+"</p></html>");
 			JPanel aboutPanel = new JPanel();
 			aboutFrame.add(aboutPanel);
 			aboutFrame.add(aboutLabel);
+		}
+		
+		if(e.getActionCommand().equals("Restart"))
+		{
+			pathItem = null;
+			name.setText(null);
+			durationField.setText("");
+			dependencyField.setText(null);
 		}
 
 		if(e.getActionCommand().equals("Quit"))
@@ -204,147 +231,11 @@ implements ActionListener, WindowListener
 		//shantest end
 	}
 
-	private void display()
-	{
-		dispIterater = pathItem;
-		dispIterater.display();
-		while(dispIterater.nextItem != null)
-		{
-			dispIterater = dispIterater.nextItem;
-			dispIterater.display();
-		}
-	}
-	
-	private String[] pathDisplay(PathItem pathItem, int index)
-	{
-		PathItem iterator = pathItem;
-		String[] result = new String[2];
-		result[0] = "";
-		result[0] += iterator.getName()+ "->";
-		result[1] = "" + iterator.getDuration() + ",";
-		return result;
-	}
 	
 	
-	private PathItem search(String name)
-	{
-		PathItem result = null;
-		iterater = pathItem;
-		while(iterater!=null)
-		{
-			if(iterater.getName().equals(name))
-			{
-				result = iterater;
-			}
-			else
-			{
-				iterater = iterater.nextItem;
-			}
-		}
-		iterater = pathItem;
-		System.out.print(result.getName());				//testing search function
-		return result;
-	}
 	
 	
-	private void dependencyFlag()
-	{
-		iterater = pathItem;
-		while(iterater!=null)
-		{
-			if(iterater.getDependencies() != null) 
-			{
-				iterater.mark = true; //mark any list with dependencies as True
-			}
-			iterater = iterater.nextItem;
-		}
-		iterater = pathItem;
-		
-	}
 	
-	private void checkFlag(String name) 
-	{
-		iterater = pathItem; 
-		while(iterater!=null) 
-		{
-			for(int i = 0; i < iterater.getDependencies().length; i++) //for loop check every dependency
-			{
-				if ((iterater.getDependencies()[i].equals(name))) 
-				{
-					iterater.mark = false; //if the dependencies contain the string name change to false
-				}
-				else
-				{
-					iterater.mark = true; //else remain true
-				}
-			}
-			iterater = iterater.nextItem;
-		}
-	}
-	
-	private void markDependency()
-	{
-		iterater = pathItem;
-		dependencyFlag(); //mark T/F rids of head or single nodes
-		while(iterater!=null)
-		{
-			if (iterater.mark != true) //if false continue through list
-			{
-				iterater = iterater.nextItem; 
-			}
-			else
-			{
-				checkFlag(iterater.getName()); //if marked true check linked list for dependency and mark t or f
-			}
-		}
-		 //pathItem is fixed by iterater
-	}
-	
-	
-	private void buildVector()
-	{
-		PathItem iterater = pathItem;
-		while (iterater != null)
-		{
-			if (iterater.mark == true)
-			{
-				PathItem tempIterater;
-				testItem = iterater.copy();
-				tempIterater = testItem;
-				tempIterater = tempIterater.nextItem;
-				SearchAddVector(iterater.getName());
-				iterater = iterater.nextItem;
-				paths.add(testItem);
-				testItem = null;
-			}
-			else
-			{
-				iterater= iterater.nextItem;
-			}
-		}
-	}
-	
-	private void SearchAddVector(String name)
-	{
-		iterater = pathItem;
-		while (iterater != null)
-		{
-			for(int i = 0; i < iterater.getDependencies().length; i++) 
-			{
-				if ((iterater.getDependencies()[i].equals(name)))
-				{
-					PathItem testIterater = testItem;
-					while(testIterater != null)
-					{
-						testIterater = testIterater.nextItem;
-					}
-					testIterater = iterater.copy();
-					SearchAddVector(iterater.getName());
-				}
-			}
-			iterater = iterater.nextItem;
-		}
-	}
 	
 	
 	void add(PathItem toAdd)
@@ -370,32 +261,96 @@ implements ActionListener, WindowListener
 		return result;
 	}
 	
-	public void printPath(PathItem path)
+	public String printPath(PathItem path)
+	{
+		String result="";
+		Iterator<PathItem> iter = events.iterator();
+		while(iter.hasNext())
+		{
+			result+=(iter.next().getName()+"->");
+		}
+		return result;
+	}
+	public String printPlus(PathItem path)
 	{
 		if(path == null)
-		{
-			return;
-		}
+			return "";
 		else
 		{
-			System.out.print(path.getName()+"->");
-			printPath(path.nextItem);
-			
+			return(path.getName()+"->")+printPlus(path.nextItem);
 		}
 	}
 	
 	
-	
-	public void buildNetwork(PathItem pathItem)
+	public String printNetwork(PathNetwork path)
 	{
-		PathItem iterater = pathItem;
-		while(iterater != null)
+		if(path == null)
 		{
-			if(iterater.isHead())
+			return "";
+		}
+		else
+		{
+			String result="";
+			int length= 0;
+			result+=(path.pathItem.getName()+"->\t");
+			Iterator<PathItem> temp = path.nextItem.iterator();
+			while(temp.hasNext())
 			{
-				
+				PathItem item = temp.next();
+				result+=printPlus(item);
+				length = network.pathItem.getDuration();
+				length += depth(item);
+				result+=(length)+("\n \t");
+			}
+			return result; 
+			
+			
+		}
+	}
+	
+	public int depth(PathItem item)
+	{
+		if(item == null)
+			return 0;
+		else
+			return item.getDuration() + depth(item.nextItem);
+	}
+	
+	
+	
+	
+
+	
+	public boolean searchDependencies(String str, PathItem item)
+	{
+		boolean result = false;
+		if(item.dependencyStrings == null)
+			return false;
+		String[] list = item.dependencyStrings;
+		for(int i = 0; i < list.length; i++)
+		{
+			if(list[i].equals(str))
+			{
+				result = true;
+				break;
 			}
 		}
+		return result;
+	}
+	
+	
+	public int dependencyCount(String parent, ArrayList<PathItem> child)
+	{
+		int count= 0;
+		Iterator<PathItem> iter = child.iterator();
+		while(iter.hasNext())
+		{
+			PathItem item = iter.next();
+			if(searchDependencies(parent,item) == true)
+				count++;
+		}
+		return count;
+		
 	}
 
 	public void windowOpened(WindowEvent evt) { }
@@ -444,5 +399,32 @@ implements ActionListener, WindowListener
 
 		
 
+	}
+	
+	String printLongest(PathNetwork paths)
+	{
+		PathItem longest = paths.nextItem.get(0);
+		Iterator<PathItem> temp = paths.nextItem.iterator();
+		while(temp.hasNext())
+		{
+			int length  = 0;
+			PathItem item = temp.next();
+			for(int i = 0; i < paths.nextItem.size()-1; i++)
+			{
+				
+				if(depth(longest)<depth(item)) {
+					longest = item.copy();
+				}
+			}
+			
+			
+		}
+		String result;
+		result = "\nlongest path: ";
+		result+=network.pathItem.getName();
+		result+="->";
+		result+=printPlus(longest);
+		result+=((depth(longest)+network.pathItem.getDuration()));
+		return result;
 	}
 }
