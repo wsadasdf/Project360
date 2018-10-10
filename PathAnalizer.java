@@ -246,6 +246,7 @@ implements ActionListener, WindowListener
 		if(e.getActionCommand().equals("Restart"))
 		{
 			pathItem = null;
+			name.setText(null);
 			durationField.setText("");
 			dependencyField.setText(null);
 		}
