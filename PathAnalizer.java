@@ -93,9 +93,11 @@ implements ActionListener, WindowListener
 	{
 		if(e.getActionCommand().equals("enter"))
 		{
+			
 			duration = Integer.parseInt(durationField.getText());
 			itemName = name.getText();
 			String temp = dependencyField.getText();
+			
 			if(events.isEmpty())
 			{
 				if(temp.equals(""))
@@ -106,16 +108,15 @@ implements ActionListener, WindowListener
 				else
 				{
 					dependencies = temp.split(",");
-					events.add(new PathItem(duration,itemName,dependencies));
+					events.add(new PathItem(duration,itemName,dependencies));					}
 				}
-			}
 			else
 			{
 				if(temp.equals(""))
 				{
 					dependencies = null;
 					events.add(new PathItem(duration,itemName));
-				}
+				}					
 				else
 				{
 					dependencies = temp.split(",");
@@ -124,46 +125,14 @@ implements ActionListener, WindowListener
 			}
 		}
 		//	}
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-			
-	
-			
-			else if (duration < 0)
-			{
-				JFrame intErrorFrame = new JFrame("Integer Error");
-				intErrorFrame.setVisible(true);
-				intErrorFrame.setSize(500,500);
-				JLabel intErrorLabel = new JLabel("Integers cannot be less than 0!");
-				JPanel intErrorPanel = new JPanel();
-				intErrorFrame.add(intErrorPanel);
-				intErrorFrame.add(intErrorLabel);
-			}
-			
+			/*
 			printPath(pathItem);
 			PathItem iterator = pathItem;
 			System.out.print("\n");
 			name.setText(null);
 			durationField.setText("");
-			dependencyField.setText(null);
-		//}
-			
-			
-			
-			
-			
-			
-			
-			
-		
+			dependencyField.setText(null);*/
+				
 		if(e.getActionCommand().equals("finish"))						//finish
 		{	
 			Iterator<PathItem> iter = events.iterator();
@@ -184,7 +153,6 @@ implements ActionListener, WindowListener
 				if(searchDependencies(network.pathItem.getName(),temp))
 				{
 					network.nextItem.add(temp.copy());
-					
 					//iter.remove();
 				}
 			}
@@ -203,18 +171,13 @@ implements ActionListener, WindowListener
 							
 							if(searchDependencies(netIter.getName(), temp))
 							{
-								
-									
 								netIter.nextItem = temp.copy();
-								//iter.remove();
 							}
 							netIter = netIter.nextItem;
 						}
-					
 				}
 			}
 			printNetwork(network);
-		
 		}
 
 		//shantest
@@ -223,7 +186,7 @@ implements ActionListener, WindowListener
 		{
 			JFrame helpFrame = new JFrame("Help");
 			helpFrame.setVisible(true);
-			helpFrame.setSize(425,700);
+			helpFrame.setSize(425,650);
 			JLabel helpLabel = new JLabel();
 			helpLabel.setText("<html><p style=\"width:300px\">"+"The input consists of multiple occurences of the following: activity name, duration, and dependencies (predecessors).<br><br>There is no maximum on the number of activities and predecessors. <br><br>Activity names can be multiple characters. <br><br>Duration must be an integer.<br><br>If another user input is found, then an error is displayed, and the user must re-enter another input before proceeding. The starting node or nodes do not have predecessors. Once all inputs are completed, then the processing can begin.<br><br>Output:<br>Pressing the enter button enters the information that is in the input fields into a hidden list that will be printed upon pressing the finish button. Input field is then cleared.<br><br>Pressing the finish button prints a list of all paths in the network that were submitted, with the duration of each path. The output field consists of the names of all activities in the path, displayed in descending order of duration.<br><br>About:<br>Prompts a new window that explains the project introduction and the overview of the program.<br><br>Restart:<br>Clears all fields of any inputs or outputs and restarts the process of inputting. Upon clicking, all inputs and paths must be re-entered and resubmitted.<br><br>Quit:<br>Halts any processes and quits out of the program immediately. No data will be saved."+"</p></html>");
 			JPanel helpPanel = new JPanel();
@@ -250,7 +213,6 @@ implements ActionListener, WindowListener
 			durationField.setText("");
 			dependencyField.setText(null);
 		}
-
 
 		if(e.getActionCommand().equals("Quit"))
 		{
@@ -373,16 +335,12 @@ implements ActionListener, WindowListener
 		while(iter.hasNext())
 		{
 			PathItem item = iter.next();
-			if(searchDependencies(parent,item))
+			if(searchDependencies(parent,item) == true)
 				count++;
 		}
 		return count;
 		
 	}
-	
-	
-	
-	
 
 	public void windowOpened(WindowEvent evt) { }
 
