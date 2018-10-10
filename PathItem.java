@@ -81,8 +81,11 @@ public class PathItem
 	{
 		PathItem temp = new PathItem(this.duration,this.name,this.dependencyStrings);
 		temp.nextItem = null;
+		
 		return temp;
 	}
+	
+	
 	
 	public boolean isHead()
 	{

@@ -201,6 +201,7 @@ implements ActionListener, WindowListener
 				iterater.nextItem = new PathItem(duration, itemName,dependencies,mark);*/
 			//}
 			printPath(pathItem);
+			PathItem iterator = pathItem;
 			System.out.print("\n");
 			name.setText(null);
 			durationField.setText("");
@@ -239,21 +240,18 @@ implements ActionListener, WindowListener
 				for(int i = 0; i < network.nextItem.size(); i++)
 				{
 					PathItem netIter = network.nextItem.get(i);
-					if(!searchDependencies(netIter.getName(), temp))
-					{
-						netIter = netIter.nextItem;
-					}
-					else
-					{
+
+					
 						while(netIter != null)
 						{
+							
 							if(searchDependencies(netIter.getName(), temp))
 							{
 								netIter.nextItem = temp;
 							}
 							netIter = netIter.nextItem;
 						}
-					}
+					
 				}
 			}
 			printNetwork(network);
@@ -498,11 +496,13 @@ implements ActionListener, WindowListener
 		}
 		else
 		{
+			int length= 0;
 			System.out.print(path.pathItem.getName()+"->\t");
 			for(int i = 0; i < path.nextItem.size(); i++)
 			{
+				
 				printPlus(path.nextItem.get(i));
-				//System.out.print(path.nextItem.get(i).calcLength());
+				
 				System.out.print("\n \t");
 			}
 			
