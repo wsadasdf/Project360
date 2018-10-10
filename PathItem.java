@@ -69,4 +69,11 @@ public class PathItem
 	{
 		return this.length;
 	}
+	
+	public PathItem copy()
+	{
+		PathItem temp = new PathItem(this.duration,this.name,this.dependencyStrings,this.mark);
+		temp.nextItem = this.nextItem;
+		return temp;
+	}
 }
