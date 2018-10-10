@@ -135,33 +135,7 @@ implements ActionListener, WindowListener
 			
 			
 			
-			
-			//String test = dependencyField.getText();
-			//String test2 = name.getText();
-			//Object test3 = Integer.parseInt(durationField.getText());
-			/*
-			if (test.contains(test2) && pathItem.getSize() > 1)
-			{
-				JFrame dependencyFrame = new JFrame("Dependency Error");
-				dependencyFrame.setVisible(true);
-				dependencyFrame.setSize(500,500);
-				JLabel dependencyLabel = new JLabel("Network node cannot depend on itself!");
-				JPanel dependencyPanel = new JPanel();
-				dependencyFrame.add(dependencyPanel);
-				dependencyFrame.add(dependencyLabel);
-			}
-			
-			
-			else if ((pathItem == null) && pathItem.getSize() > 1)
-			{
-				JFrame identicalFrame = new JFrame("Identical Name Error");
-				identicalFrame.setVisible(true);
-				identicalFrame.setSize(500,500);
-				JLabel identicalLabel = new JLabel("Identical name function detected!");
-				JPanel identicalPanel = new JPanel();
-				identicalFrame.add(identicalPanel);
-				identicalFrame.add(identicalLabel);
-			}*/
+	
 			
 			else if (duration < 0)
 			{
@@ -174,32 +148,6 @@ implements ActionListener, WindowListener
 				intErrorFrame.add(intErrorLabel);
 			}
 			
-			/*else if (pathItem == null && dependencies != null)
-			{
-				JFrame dependencyFrame = new JFrame("Dependency Error");
-				dependencyFrame.setVisible(true);
-				dependencyFrame.setSize(500,500);
-				JLabel dependencyLabel = new JLabel("Head node cannot contain dependencies!");
-				JPanel dependencyPanel = new JPanel();
-				dependencyFrame.add(dependencyPanel);
-				dependencyFrame.add(dependencyLabel);
-			}*/
-			
-	/*		if (pathItem == null)
-			{
-				pathItem = new PathItem(duration,itemName,dependencies,mark);
-				iterater = pathItem;
-			}
-
-			else
-			{
-				while(iterater.nextItem != null)
-				{
-					iterater = iterater.nextItem;
-				}
-
-				iterater.nextItem = new PathItem(duration, itemName,dependencies,mark);*/
-			//}
 			printPath(pathItem);
 			PathItem iterator = pathItem;
 			System.out.print("\n");
@@ -207,11 +155,18 @@ implements ActionListener, WindowListener
 			durationField.setText("");
 			dependencyField.setText(null);
 		//}
+			
+			
+			
+			
+			
+			
+			
+			
 		
-		if(e.getActionCommand().equals("finish"))
+		if(e.getActionCommand().equals("finish"))						//finish
 		{	
 			Iterator<PathItem> iter = events.iterator();
-			//PathItem iter = pathItem;
 			while((iter.hasNext()))
 			{
 				PathItem temp = iter.next();
@@ -229,7 +184,8 @@ implements ActionListener, WindowListener
 				if(searchDependencies(network.pathItem.getName(),temp))
 				{
 					network.nextItem.add(temp.copy());
-					iter.remove();
+					
+					//iter.remove();
 				}
 			}
 			iter = events.iterator();
@@ -247,7 +203,10 @@ implements ActionListener, WindowListener
 							
 							if(searchDependencies(netIter.getName(), temp))
 							{
-								netIter.nextItem = temp;
+								
+									
+								netIter.nextItem = temp.copy();
+								//iter.remove();
 							}
 							netIter = netIter.nextItem;
 						}
@@ -291,147 +250,11 @@ implements ActionListener, WindowListener
 		//shantest end
 	}
 
-	private void display()
-	{
-		dispIterater = pathItem;
-		dispIterater.display();
-		while(dispIterater != null)
-		{
-			dispIterater = dispIterater.nextItem;
-			dispIterater.display();
-		}
-	}
-	
-	private String[] pathDisplay(PathItem pathItem, int index)
-	{
-		PathItem iterator = pathItem;
-		String[] result = new String[2];
-		result[0] = "";
-		result[0] += iterator.getName()+ "->";
-		result[1] = "" + iterator.getDuration() + ",";
-		return result;
-	}
-	
-	/*
-	private PathItem search(String name)
-	{
-		PathItem result = null;
-		iterater = pathItem;
-		while(iterater!=null)
-		{
-			if(iterater.getName().equals(name))
-			{
-				result = iterater;
-			}
-			else
-			{
-				iterater = iterater.nextItem;
-			}
-		}
-		iterater = pathItem;
-		System.out.print(result.getName());				//testing search function
-		return result;
-	}
 	
 	
-	private void dependencyFlag()
-	{
-		iterater = pathItem;
-		while(iterater!=null)
-		{
-			if(iterater.getDependencies() != null) 
-			{
-				iterater.mark = true; //mark any list with dependencies as True
-			}
-			iterater = iterater.nextItem;
-		}
-		
-	}
-	
-	private void checkFlag(String name) 
-	{
-		iterater = pathItem; 
-		while(iterater!=null) 
-		{
-			for(int i = 0; i < iterater.getDependencies().length; i++) //for loop check every dependency
-			{
-				if ((iterater.getDependencies()[i].equals(name))) 
-				{
-					iterater.mark = false; //if the dependencies contain the string name change to false
-				}
-				else
-				{
-					iterater.mark = true; //else remain true
-				}
-			}
-			iterater = iterater.nextItem;
-		}
-	}
-	
-	private void markDependency()
-	{
-		iterater = pathItem;
-		dependencyFlag(); //mark T/F rids of head or single nodes
-		while(iterater!=null)
-		{
-			if (iterater.mark != true) //if false continue through list
-			{
-				 
-			}
-			else
-			{
-				checkFlag(iterater.getName()); //if marked true check linked list for dependency and mark t or f
-			}
-			iterater = iterater.nextItem;
-		}
-		 //pathItem is fixed by iterater
-	}
 	
 	
-	private void buildVector()
-	{
-		PathItem iterater = pathItem;
-		while (iterater != null)
-		{
-			if (iterater.mark == true)
-			{
-				PathItem tempIterater;
-				testItem = iterater.copy();
-				tempIterater = testItem;
-				tempIterater = tempIterater.nextItem;
-				SearchAddVector(iterater.getName());
-				iterater = iterater.nextItem;
-				testing = testItem;
-				testItem = null;
-			}
-			else
-			{
-				iterater= iterater.nextItem;
-			}
-		}
-	}
-	*/
-	private void SearchAddVector(String name)
-	{
-		iterater = pathItem;
-		while (iterater != null)
-		{
-			for(int i = 0; i < iterater.getDependencies().length; i++) 
-			{
-				if ((iterater.getDependencies()[i].equals(name)))
-				{
-					PathItem testIterater = testItem;
-					while(testIterater != null)
-					{
-						testIterater = testIterater.nextItem;
-					}
-					testIterater = iterater.copy();
-					SearchAddVector(iterater.getName());
-				}
-			}
-			iterater = iterater.nextItem;
-		}
-	}
+	
 	
 	
 	void add(PathItem toAdd)
@@ -465,16 +288,6 @@ implements ActionListener, WindowListener
 		{
 			System.out.print(iter.next().getName()+"->");
 		}
-		//if(path == null)
-		//{
-		//	return;
-		//}
-		//else
-	//	{
-		//	System.out.print(path.getName()+"->");
-		//	printPath(path.nextItem);
-			
-		//}
 	}
 	public void printPlus(PathItem path)
 	{
@@ -498,22 +311,33 @@ implements ActionListener, WindowListener
 		{
 			int length= 0;
 			System.out.print(path.pathItem.getName()+"->\t");
-			for(int i = 0; i < path.nextItem.size(); i++)
+			Iterator<PathItem> temp = path.nextItem.iterator();
+			while(temp.hasNext())
 			{
-				
-				printPlus(path.nextItem.get(i));
-				
+				PathItem item = temp.next();
+				printPlus(item);
+				length = network.pathItem.getDuration();
+				length += depth(item);
+				System.out.print(length);
 				System.out.print("\n \t");
 			}
 			
+			
 		}
+	}
+	
+	public int depth(PathItem item)
+	{
+		if(item == null)
+			return 0;
+		else
+			return item.getDuration() + depth(item.nextItem);
 	}
 	
 	
 	
 	
-	
-	
+
 	
 	public boolean searchDependencies(String str, PathItem item)
 	{
@@ -533,22 +357,23 @@ implements ActionListener, WindowListener
 	}
 	
 	
-	
-	
-	
-	
-	
-	public void buildNetwork(PathItem pathItem)
+	public int dependencyCount(String parent, ArrayList<PathItem> child)
 	{
-		PathItem iterater = pathItem;
-		while(iterater != null)
+		int count= 0;
+		Iterator<PathItem> iter = child.iterator();
+		while(iter.hasNext())
 		{
-			if(iterater.isHead())
-			{
-				
-			}
+			PathItem item = iter.next();
+			if(searchDependencies(parent,item))
+				count++;
 		}
+		return count;
+		
 	}
+	
+	
+	
+	
 
 	public void windowOpened(WindowEvent evt) { }
 

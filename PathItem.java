@@ -80,7 +80,7 @@ public class PathItem
 	public PathItem copy()
 	{
 		PathItem temp = new PathItem(this.duration,this.name,this.dependencyStrings);
-		temp.nextItem = null;
+		temp.nextItem = this.nextItem;
 		
 		return temp;
 	}
