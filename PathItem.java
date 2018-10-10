@@ -7,6 +7,7 @@ public class PathItem
 	public String[] dependencyStrings;
 	public PathItem nextItem = null;
 	private int length;
+	private boolean head = false;
 	
 	public boolean mark = false;
 	
@@ -73,7 +74,12 @@ public class PathItem
 	public PathItem copy()
 	{
 		PathItem temp = new PathItem(this.duration,this.name,this.dependencyStrings,this.mark);
-		temp.nextItem = this.nextItem;
+		temp.nextItem = null;
 		return temp;
+	}
+	
+	public boolean isHead()
+	{
+		return head;
 	}
 }

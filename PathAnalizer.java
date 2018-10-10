@@ -48,6 +48,7 @@ implements ActionListener, WindowListener
 		add(enterButton);
 		finishButton = new Button("finish");
 		add (finishButton);
+		
 
 		//shan test
 
@@ -66,6 +67,7 @@ implements ActionListener, WindowListener
 		aboutButton.addActionListener(this);
 		helpButton.addActionListener(this);
 		quitButton.addActionListener(this);
+		finishButton.addActionListener(this);
 		addWindowListener(this);
 		setTitle("Path Analizer");
 		setSize(250,250);
@@ -128,7 +130,7 @@ implements ActionListener, WindowListener
 				intErrorFrame.add(intErrorLabel);
 			}
 			
-			else if (pathItem == null && dependencies != null)
+			/*else if (pathItem == null && dependencies != null)
 			{
 				JFrame dependencyFrame = new JFrame("Dependency Error");
 				dependencyFrame.setVisible(true);
@@ -137,7 +139,7 @@ implements ActionListener, WindowListener
 				JPanel dependencyPanel = new JPanel();
 				dependencyFrame.add(dependencyPanel);
 				dependencyFrame.add(dependencyLabel);
-			}
+			}*/
 			
 			if (pathItem == null)
 			{
@@ -161,9 +163,12 @@ implements ActionListener, WindowListener
 		}
 		
 		if(e.getActionCommand().equals("finish"))
-		{
-			
+		{	
+			markDependency();
+			buildVector();
+			printPath(paths.get(0));
 			//buildNetwork(pathItem);
+			
 		}
 
 		//shantest
@@ -253,7 +258,8 @@ implements ActionListener, WindowListener
 			}
 			iterater = iterater.nextItem;
 		}
-		pathItem = iterater;
+		iterater = pathItem;
+		
 	}
 	
 	private void checkFlag(String name) 
@@ -272,10 +278,11 @@ implements ActionListener, WindowListener
 					iterater.mark = true; //else remain true
 				}
 			}
+			iterater = iterater.nextItem;
 		}
 	}
 	
-	private void checkDependency(String name)
+	private void markDependency()
 	{
 		iterater = pathItem;
 		dependencyFlag(); //mark T/F rids of head or single nodes
@@ -290,26 +297,29 @@ implements ActionListener, WindowListener
 				checkFlag(iterater.getName()); //if marked true check linked list for dependency and mark t or f
 			}
 		}
-		pathItem = iterater; //pathItem is fixed by iterater
+		 //pathItem is fixed by iterater
 	}
 	
 	
 	private void buildVector()
 	{
-		while (pathItem != null)
+		PathItem iterater = pathItem;
+		while (iterater != null)
 		{
-			if (pathItem.mark == true)
+			if (iterater.mark == true)
 			{
-				testItem = pathItem.copy();
-				testItem = testItem.nextItem;
-				SearchAddVector(pathItem.getName());
-				pathItem = pathItem.nextItem;
+				PathItem tempIterater;
+				testItem = iterater.copy();
+				tempIterater = testItem;
+				tempIterater = tempIterater.nextItem;
+				SearchAddVector(iterater.getName());
+				iterater = iterater.nextItem;
 				paths.add(testItem);
 				testItem = null;
 			}
 			else
 			{
-				pathItem = pathItem.nextItem;
+				iterater= iterater.nextItem;
 			}
 		}
 	}
@@ -323,8 +333,12 @@ implements ActionListener, WindowListener
 			{
 				if ((iterater.getDependencies()[i].equals(name)))
 				{
-					testItem = iterater.copy();
-					testItem = testItem.nextItem;
+					PathItem testIterater = testItem;
+					while(testIterater != null)
+					{
+						testIterater = testIterater.nextItem;
+					}
+					testIterater = iterater.copy();
 					SearchAddVector(iterater.getName());
 				}
 			}
@@ -354,6 +368,34 @@ implements ActionListener, WindowListener
 			}
 		}
 		return result;
+	}
+	
+	public void printPath(PathItem path)
+	{
+		if(path == null)
+		{
+			return;
+		}
+		else
+		{
+			System.out.print(path.getName()+"->");
+			printPath(path.nextItem);
+			
+		}
+	}
+	
+	
+	
+	public void buildNetwork(PathItem pathItem)
+	{
+		PathItem iterater = pathItem;
+		while(iterater != null)
+		{
+			if(iterater.isHead())
+			{
+				
+			}
+		}
 	}
 
 	public void windowOpened(WindowEvent evt) { }
