@@ -43,11 +43,6 @@ implements ActionListener, WindowListener
 		dependencyField = new TextField(null,10);
 		add(dependencyField);
 		
-		/*
-		add(new Label("Path Dependencies "));
-		durationField = new TextField("",10);
-		add(dependencyField);
-		*/
 
 		enterButton = new Button("enter");
 		add(enterButton);
@@ -94,44 +89,75 @@ implements ActionListener, WindowListener
 		if(e.getActionCommand().equals("enter"))
 		{
 			
-			duration = Integer.parseInt(durationField.getText());
-			itemName = name.getText();
-			String temp = dependencyField.getText();
-			
-			if(events.isEmpty())
+			try
 			{
-				if(temp.equals(""))
+				
+				duration = Integer.parseInt(durationField.getText());
+				
+				itemName = name.getText();
+				String temp = dependencyField.getText();
+				
+				if(events.isEmpty())
 				{
-					dependencies = null;
-					events.add(new PathItem(duration,itemName));
+					if(temp.equals(""))
+					{
+						dependencies = null;
+						events.add(new PathItem(duration,itemName));
+					}
+					else
+					{
+						dependencies = temp.split(",");
+						events.add(new PathItem(duration,itemName,dependencies));					
+					}
 				}
 				else
 				{
-					dependencies = temp.split(",");
-					events.add(new PathItem(duration,itemName,dependencies));					}
+					Iterator<PathItem> iter = events.iterator();
+					while(iter.hasNext())
+					{
+						PathItem dupe = iter.next();
+						if(dupe.getName().equals(itemName))
+						{
+							throw  new UnsupportedOperationException();
+						}
+					}
+					if(temp.equals(""))
+					{
+						dependencies = null;
+						events.add(new PathItem(duration,itemName));
+					}					
+					else
+					{
+						dependencies = temp.split(",");
+						events.add(new PathItem(duration,itemName,dependencies));
+					}
 				}
-			else
-			{
-				if(temp.equals(""))
-				{
-					dependencies = null;
-					events.add(new PathItem(duration,itemName));
-				}					
-				else
-				{
-					dependencies = temp.split(",");
-					events.add(new PathItem(duration,itemName,dependencies));
-				}
+				name.setText(null);
+				durationField.setText("");
+				dependencyField.setText(null);
 			}
-		}
-		//	}
-			/*
-			printPath(pathItem);
-			PathItem iterator = pathItem;
-			System.out.print("\n");*/
-			name.setText(null);
-			durationField.setText("");
-			dependencyField.setText(null);
+			catch(IllegalArgumentException exception)
+			{
+				JPanel panel = new JPanel();
+				JOptionPane.showMessageDialog(panel, "dependency not an integer"
+						+ "", "Error", JOptionPane.ERROR_MESSAGE);
+
+			}
+			catch(UnsupportedOperationException exception)
+			{
+				JPanel panel = new JPanel();
+				JOptionPane.showMessageDialog(panel, "Node already exists"
+						+ "", "Error", JOptionPane.ERROR_MESSAGE);
+			}
+			finally
+			{
+				name.setText(null);
+				durationField.setText("");
+				dependencyField.setText(null);
+			}
+
+		}	
+			
 				
 		if(e.getActionCommand().equals("finish"))						//finish
 		{	
@@ -222,6 +248,8 @@ implements ActionListener, WindowListener
 			name.setText(null);
 			durationField.setText("");
 			dependencyField.setText(null);
+			network = null;
+			events.clear();
 		}
 
 		if(e.getActionCommand().equals("Quit"))
