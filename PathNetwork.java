@@ -13,7 +13,5 @@ public class PathNetwork
 	{
 		this.pathItem = pathItem;
 		nextItem = new ArrayList<PathItem>();
-	}
-	
-	
+	}	
 }
