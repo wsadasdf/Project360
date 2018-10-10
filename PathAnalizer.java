@@ -203,14 +203,12 @@ implements ActionListener, WindowListener
 						}
 				}
 			}
-			String output = printNetwork(network);
-			output += "\n" +printLongest(network);
-			System.out.print(output);
 			JFrame outputFrame = new JFrame("Output");
 			outputFrame.setVisible(true);
 			outputFrame.setSize(425,650);
 			JLabel outputLabel = new JLabel();
-			outputLabel.setText(output);
+			String output = printNetwork(network);
+			outputLabel.setText("<html><p style=\"width:300px\">"+output+"<br><br>"+printLongest(network)+"</p></html>");
 			JPanel outputPanel = new JPanel();
 			outputFrame.add(outputPanel);
 			outputFrame.add(outputLabel);
