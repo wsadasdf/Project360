@@ -25,7 +25,7 @@ implements ActionListener, WindowListener
 	private TextField name,durationField,dependencyField;
 	private String results = "";
 	private JCheckBox critPath = new JCheckBox();
-	private Button enterButton, finishButton, aboutButton, helpButton, restartButton, quitButton;	//getButton calculates the required items
+	private Button enterButton, finishButton, aboutButton, helpButton, restartButton, quitButton, editButton;	//getButton calculates the required items
 	private int duration, maxDuration = 0;
 	private String[] dependencies;
 	private String itemName = "";
@@ -51,7 +51,7 @@ implements ActionListener, WindowListener
 		dependencyField = new TextField("",10);
 		add(dependencyField);
 		add(critPath);
-
+		editButton = new Button("edit");
 		enterButton = new Button("enter");
 		add(enterButton);
 		finishButton = new Button("finish");
@@ -59,7 +59,7 @@ implements ActionListener, WindowListener
 		
 
 		//shan test
-
+		add(editButton);
 		aboutButton = new Button("About");
 		add(aboutButton);
 		helpButton = new Button("Help");
@@ -77,6 +77,7 @@ implements ActionListener, WindowListener
 		quitButton.addActionListener(this);
 		finishButton.addActionListener(this);
 		restartButton.addActionListener(this);
+		editButton.addActionListener(this);
 		addWindowListener(this);
 		setTitle("Path Analizer");
 		setSize(250,250);
@@ -95,7 +96,12 @@ implements ActionListener, WindowListener
 
 	public void actionPerformed(ActionEvent e) 
 	{
-		
+		if(e.getActionCommand().equals("edit"))
+		{
+			int toChange = Integer.parseInt(durationField.getText());
+			String nodeName = name.getText();
+			change(nodeName,toChange,network);
+		}
 		if(e.getActionCommand().equals("Restart"))
 		{
 			error = false;
@@ -541,7 +547,17 @@ implements ActionListener, WindowListener
 	}
 
 	
-	
+	public void change(String toChange, int time, PathNetwork net)
+	{
+		if(net.item.getName().equals(toChange))
+		{
+			net.item.duration = time;
+		}
+		for(int i = 0; i < net.children.size(); i++)
+		{
+			change(toChange,time,net.children.get(i));
+		}
+	}
 	
 	
 	
