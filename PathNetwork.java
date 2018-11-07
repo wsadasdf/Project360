@@ -6,14 +6,20 @@ import java.util.Iterator;
 
 public class PathNetwork 
 {
-	public PathItem pathItem;
+	public PathItem item;
+	public String name;
+	public int duration;
 	public ArrayList<PathItem> nextItem;
-	
-	public PathNetwork(PathItem pathItem)
+	public ArrayList<PathNetwork> children;
+	public int headTime;
+	public PathNetwork(PathItem item)
 	{
-		this.pathItem = pathItem;
-		nextItem = new ArrayList<PathItem>();
+		this.item = item.copy();
+		children = new ArrayList<PathNetwork>(0);
+		duration = 0;
 	}
+	
+	
 	
 	
 }

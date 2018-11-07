@@ -6,6 +6,7 @@ import java.awt.event.*;
 import java.util.Vector;
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class PathAnalizer extends Frame
 implements ActionListener, WindowListener
@@ -16,21 +17,29 @@ implements ActionListener, WindowListener
 	//variable block
 
 	private static final long serialVersionUID = 7942054704709588561L;
+	private boolean headCreated = false;
+	private boolean error = false;
 	private TextField name,durationField,dependencyField;
+	private String results = "";
+	private JCheckBox critPath = new JCheckBox();
 	private Button enterButton, finishButton, aboutButton, helpButton, restartButton, quitButton;	//getButton calculates the required items
-	private int duration, longest;
+	private int duration, longest,maxDuration = 0;
 	private String[] dependencies;
 	private String itemName = "";
+	private Stack<PathNetwork> stack = new Stack<PathNetwork>();
+	private ArrayList<PathNetwork> paths = new ArrayList<PathNetwork>();
+	private ArrayList<PathNetwork> sortedPaths = new ArrayList<PathNetwork>();
 	private PathItem pathItem = null, iterater = null, dispIterater = null, testItem = null;
-	private boolean mark;
+	private boolean mark, added;
 	private PathItem testing;
 	private PathNetwork network;
-	private Vector<PathItem> paths = new Vector<PathItem>(1);
+	//private Vector<PathItem> paths = new Vector<PathItem>(1);
 	private ArrayList<PathItem> events = new ArrayList<PathItem>();
 	
 	public PathAnalizer()
 	{
 		duration = 0;
+		critPath.setText("only critical");
 		setLayout(new FlowLayout());
 		add(new Label("Path Name "));
 		name = new TextField(null,10);
@@ -42,7 +51,7 @@ implements ActionListener, WindowListener
 		add(new Label("dependancies "));
 		dependencyField = new TextField(null,10);
 		add(dependencyField);
-		
+		add(critPath);
 
 		enterButton = new Button("enter");
 		add(enterButton);
@@ -68,6 +77,7 @@ implements ActionListener, WindowListener
 		helpButton.addActionListener(this);
 		quitButton.addActionListener(this);
 		finishButton.addActionListener(this);
+		restartButton.addActionListener(this);
 		addWindowListener(this);
 		setTitle("Path Analizer");
 		setSize(250,250);
@@ -86,6 +96,27 @@ implements ActionListener, WindowListener
 
 	public void actionPerformed(ActionEvent e) 
 	{
+		
+		if(e.getActionCommand().equals("Restart"))
+		{
+			error = false;
+			headCreated = false;
+			itemName = "";
+			duration = 0;
+			dependencies = null;
+			pathItem = null;
+			name.setText(null);
+			durationField.setText("");
+			dependencyField.setText(null);
+			critPath.setSelected(false);
+			network = null;
+			events.clear();
+			paths.clear();
+			sortedPaths.clear();
+			maxDuration = 0;
+			results = "";
+		}
+		
 		if(e.getActionCommand().equals("enter"))
 		{
 			
@@ -119,6 +150,7 @@ implements ActionListener, WindowListener
 						if(dupe.getName().equals(itemName))
 						{
 							throw  new UnsupportedOperationException();
+							
 						}
 					}
 					if(temp.equals(""))
@@ -139,7 +171,7 @@ implements ActionListener, WindowListener
 			catch(IllegalArgumentException exception)
 			{
 				JPanel panel = new JPanel();
-				JOptionPane.showMessageDialog(panel, "dependency not an integer"
+				JOptionPane.showMessageDialog(panel, "duration is not an integer"
 						+ "", "Error", JOptionPane.ERROR_MESSAGE);
 
 			}
@@ -149,69 +181,160 @@ implements ActionListener, WindowListener
 				JOptionPane.showMessageDialog(panel, "Node already exists"
 						+ "", "Error", JOptionPane.ERROR_MESSAGE);
 			}
-			finally
+			/*finally
 			{
 				name.setText(null);
 				durationField.setText("");
 				dependencyField.setText(null);
-			}
+				
+			}*/
 
 		}	
 			
 				
 		if(e.getActionCommand().equals("finish"))						//finish
 		{	
-			Iterator<PathItem> iter = events.iterator();
-			while((iter.hasNext()))
+			if(!events.isEmpty()) 
 			{
-				PathItem temp = iter.next();
-				if(temp.dependencyStrings == null)
+				sortedPaths.clear();
+				paths.clear();
+				results = "";
+				Iterator<PathItem> iter = events.iterator();
+				while((iter.hasNext()))
 				{
-					network = new PathNetwork(temp.copy());
-					iter.remove();
+					PathItem temp = iter.next();
+					if((temp.dependencyStrings == null))
+					{
+						if(headCreated)
+						{
+							error = true;
+							JPanel panel = new JPanel();
+							JOptionPane.showMessageDialog(panel, "disjoint node detected"
+									+ "", "Error", JOptionPane.ERROR_MESSAGE);
+							break;
+						}
+						else
+						{
+							network = new PathNetwork(temp.copy());
+							System.out.print(network.item.getName()+"("+network.item.getDuration()+")->");
+							headCreated = true;
+							iter.remove();
+						}
+						
+					}
 				}
+				
+				for(int i = 0; i < events.size(); i++)
+				{
+					if(error)
+					{
+						break;
+					}
+					iter = events.iterator();
+					while((iter.hasNext()))
+					{
+						PathItem temp = iter.next();
+						insert(temp,network);
+						if(temp.dependencyStrings.size() == 0)
+						{
+							iter.remove();
+							break;
+							
+						}
+					}
+				}
+				
+				//linked list iterator for unprocessed entries
+				/*
+				iter = events.iterator();
+				while(iter.hasNext())
+				{
+					PathItem temp = iter.next();
+					if(searchDependencies(network.name,temp))
+					{
+						network.children.add(new PathNetwork(temp.copy()));
+						//network.nextItem.add(temp.copy());
+						//iter.remove();
+					}
+				}
+				iter = events.iterator();
+				Iterator<PathNetwork> child;
+				while(iter.hasNext())
+				{
+					PathItem temp = iter.next();
+					insert(temp, network);
+						//PathItem netIter = network.nextItem.get(i);
+
+						/*
+							while(netIter != null)
+							{
+								
+								if(searchDependencies(netIter.getName(), temp))
+								{
+									netIter.nextItem = temp.copy();
+								}
+								netIter = netIter.nextItem;
+							}
+				}*/
+				makePaths(network);
+				Iterator<PathNetwork> tempIter = paths.iterator();
+				
+				//calculates the path durations
+				while(tempIter.hasNext())
+				{
+					PathNetwork temp = tempIter.next();
+					temp.item.headTime = getDuration(temp);
+					
+				}
+				
+				
+				
+				System.out.print("\n");
+				sort(paths);
+				if(critPath.isSelected() && !error)
+				{
+					maxDuration = sortedPaths.get(0).item.headTime;
+					Iterator<PathNetwork> pathIter = sortedPaths.iterator();
+					while(pathIter.hasNext())
+					{
+						PathNetwork temp = pathIter.next();
+						if(temp.item.headTime < maxDuration)
+						{
+							pathIter.remove();
+						}
+					}
+					printNetwork(sortedPaths);
+					results = "only critical paths\n" + results;
+					System.out.print(results);
+				}
+				else if(!error)
+				{
+					printNetwork(sortedPaths);
+					results = "all paths\n" + results;
+					System.out.print(results);
+				}
+				
+				
+				if(!error)
+				{
+					JFrame outputFrame = new JFrame("Output");
+					outputFrame.setVisible(true);
+					outputFrame.setSize(425,650);
+					JLabel outputLabel = new JLabel();
+					//String output = printNetwork(network);
+					outputLabel.setText("<html><p style=\"width:300px\">"+results+"<br><br>"+"</p></html>");
+					JPanel outputPanel = new JPanel();
+					outputFrame.add(outputPanel);
+					outputFrame.add(outputLabel);
+				}
+			}
+			else
+			{
+				JPanel panel = new JPanel();
+				JOptionPane.showMessageDialog(panel, "no events entered"
+						+ "", "Error", JOptionPane.ERROR_MESSAGE);
 			}
 			
-			iter = events.iterator();
-			while(iter.hasNext())
-			{
-				PathItem temp = iter.next();
-				if(searchDependencies(network.pathItem.getName(),temp))
-				{
-					network.nextItem.add(temp.copy());
-					//iter.remove();
-				}
-			}
-			iter = events.iterator();
-			while(iter.hasNext())
-			{
-				PathItem temp = iter.next();
-				
-				for(int i = 0; i < network.nextItem.size(); i++)
-				{
-					PathItem netIter = network.nextItem.get(i);
-
-					
-						while(netIter != null)
-						{
-							
-							if(searchDependencies(netIter.getName(), temp))
-							{
-								netIter.nextItem = temp.copy();
-							}
-							netIter = netIter.nextItem;
-						}
-				}
-			}
-			JFrame outputFrame = new JFrame("Output");
-			outputFrame.setVisible(true);
-			outputFrame.setSize(425,650);
-			JLabel outputLabel = new JLabel();
-			String output = printNetwork(network);
-			outputLabel.setText("<html><p style=\"width:300px\">"+output+"<br><br>"+printLongest(network)+"</p></html>");
-			JPanel outputPanel = new JPanel();
-			outputFrame.add(outputPanel);
-			outputFrame.add(outputLabel);
 		}
 
 		//shantest
@@ -240,15 +363,7 @@ implements ActionListener, WindowListener
 			aboutFrame.add(aboutLabel);
 		}
 		
-		if(e.getActionCommand().equals("Restart"))
-		{
-			pathItem = null;
-			name.setText(null);
-			durationField.setText("");
-			dependencyField.setText(null);
-			network = null;
-			events.clear();
-		}
+		
 
 		if(e.getActionCommand().equals("Quit"))
 		{
@@ -266,7 +381,7 @@ implements ActionListener, WindowListener
 	
 	void add(PathItem toAdd)
 	{
-		paths.add(toAdd);
+		//paths.add(toAdd);
 	}
 	
 	
@@ -308,31 +423,38 @@ implements ActionListener, WindowListener
 	}
 	
 	
-	public String printNetwork(PathNetwork path)
+	public void printNetwork(ArrayList<PathNetwork> paths)
 	{
-		if(path == null)
+		String result = "";
+		
+		
+		Iterator<PathNetwork> iter = paths.iterator();
+		while(iter.hasNext())
 		{
-			return "";
+			PathNetwork temp = iter.next();
+			path(temp);
+			results += temp.item.headTime;
+			results += "\n";
+		}
+		
+		return;
+	}
+	
+	public void path(PathNetwork paths)
+	{
+		
+		if(paths.children.size() == 1)
+		{
+			results += paths.children.get(0).item.getName() +"("+ paths.children.get(0).item.getDuration() + ")->";
+			path(paths.children.get(0));
 		}
 		else
 		{
-			String result="";
-			int length= 0;
-			result+=(path.pathItem.getName()+"->\t");
-			Iterator<PathItem> temp = path.nextItem.iterator();
-			while(temp.hasNext())
-			{
-				PathItem item = temp.next();
-				result+=printPlus(item);
-				length = network.pathItem.getDuration();
-				length += depth(item);
-				result+=(length)+("\n \t");
-			}
-			return result; 
-			
-			
+			//results+="\n";
+			return;
 		}
 	}
+	
 	
 	public int depth(PathItem item)
 	{
@@ -344,6 +466,90 @@ implements ActionListener, WindowListener
 	
 	
 	
+	void insert(PathItem toInsert, PathNetwork net)
+	{
+		PathNetwork temp = net;
+		boolean done = false;
+			if(searchDependencies(temp.item.getName(),toInsert))
+			{
+				for(int i = 0; i < temp.children.size(); i++)
+				{
+					if(temp.children.get(i).item.getName().equals(toInsert.getName()))
+					{
+						done = true;
+						break;
+					}
+					
+				}
+				if(!done)
+				{
+					temp.children.add(new PathNetwork(toInsert));
+					//toInsert.dependencyStrings.remove(temp.item.getName());
+					System.out.print(toInsert.getName() +"("+toInsert.getDuration()+ ")->");
+				}
+				
+				
+				added = true;
+			}
+			else
+			{
+				
+				//System.out.print();
+				if(temp.children.size() > 0)
+				{
+					for(int i = 0; i < temp.children.size(); i++)
+					{
+						insert(toInsert, temp.children.get(i));
+					}
+				}
+			}
+			
+			
+			
+		//toInsert.dependencyStrings.remove(temp.item.getName());
+		return;
+	}
+	
+	
+	
+	
+	
+	
+	
+	void makePaths(PathNetwork network)
+	{
+		PathNetwork netIter = network;
+		if(network.children.size() > 0)
+		{
+			stack.push(netIter);
+			for(int i = 0; i < netIter.children.size(); i++)
+			{
+				
+				makePaths(netIter.children.get(i));
+			}
+			stack.pop();
+			
+		}
+		else
+		{
+			stack.push(new PathNetwork(network.item.copy()));
+			Iterator<PathNetwork> stackIter = stack.iterator();
+			PathNetwork head = new PathNetwork(stack.firstElement().item.copy());
+			PathNetwork iter = head;
+			while(stackIter.hasNext())
+			{
+				PathNetwork temp = stackIter.next();
+				iter.children = new ArrayList<PathNetwork>(0);
+				iter.children.add( new PathNetwork(temp.item.copy()));
+				iter = iter.children.get(0);
+				
+			}
+			//head.headTime = getDuration(head);
+			paths.add(head);
+			stack.pop();
+		}
+	}
+	
 	
 
 	
@@ -352,16 +558,62 @@ implements ActionListener, WindowListener
 		boolean result = false;
 		if(item.dependencyStrings == null)
 			return false;
-		String[] list = item.dependencyStrings;
-		for(int i = 0; i < list.length; i++)
+		ArrayList<String> list = item.dependencyStrings;
+		for(int i = 0; i < list.size(); i++)
 		{
-			if(list[i].equals(str))
+			if(list.get(i).equals(str))
 			{
 				result = true;
 				break;
 			}
 		}
 		return result;
+	}
+	
+	
+	
+	public int getDuration(PathNetwork path)
+	{
+		int result = 0;
+		while(path.children.size() != 0)
+		{
+			path = path.children.get(0);
+			result += path.item.duration;
+			
+		}
+
+		return result;
+	}
+	
+	
+	public void sort(ArrayList<PathNetwork> toSort)
+	{
+		if(toSort.size() == 0)
+		{
+			return;
+		}
+		maxDuration = 0;
+		Iterator<PathNetwork> pathIter = toSort.iterator();
+		while(pathIter.hasNext())
+		{
+			PathNetwork temp = pathIter.next();
+			if(temp.item.headTime > maxDuration)
+			{
+				maxDuration = temp.item.headTime;
+			}
+		}
+		pathIter = toSort.iterator();
+		while(pathIter.hasNext())
+		{
+			PathNetwork temp = pathIter.next();
+			if(temp.item.headTime == maxDuration)
+			{
+				sortedPaths.add(temp);
+				pathIter.remove();
+			}
+		}
+		sort(toSort);
+		return;
 	}
 	
 	
@@ -447,10 +699,14 @@ implements ActionListener, WindowListener
 		}
 		String result;
 		result = "\nlongest path: ";
-		result+=network.pathItem.getName();
+		//result+=network.pathItem.getName();
 		result+="->";
 		result+=printPlus(longest);
-		result+=((depth(longest)+network.pathItem.getDuration()));
+		//result+=((depth(longest)+network.pathItem.getDuration()));
 		return result;
 	}
+	
+	
+	
+	
 }
