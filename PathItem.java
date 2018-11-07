@@ -1,20 +1,36 @@
 package main_pkg;
+import java.util.ArrayList;
 
 public class PathItem 
 {
-	private int duration = 0;
+	public int duration = 0;
 	private String name = "";
-	public String[] dependencyStrings;
+	public ArrayList<String> dependencyStrings;
+	private String[] dependencies;
 	public PathItem nextItem = null;
 	private int length;
 	private boolean head = false;
 	private int depth;
+	public int headTime;
 	
 	
 	public PathItem(int duration, String name, String[] dependencies)
 	{
 		this.duration = duration;
 		this.name = name;
+		this.dependencies = dependencies;
+		this.dependencyStrings = new ArrayList<String>(0);
+		for(int i = 0; i < dependencies.length; i++)
+		{
+			this.dependencyStrings.add(dependencies[i]);
+		}
+		this.length = 0;
+	}
+	public PathItem(int duration, String name, ArrayList<String> dependencies)
+	{
+		this.duration = duration;
+		this.name = name;
+		this.dependencies = new String[0];
 		this.dependencyStrings = dependencies;
 		this.length = 0;
 	}
@@ -44,7 +60,7 @@ public class PathItem
 		return this.duration;
 	}
 	
-	public String[] getDependencies()
+	public ArrayList<String> getDependencies()
 	{
 		return this.dependencyStrings;
 	}
