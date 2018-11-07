@@ -2,9 +2,14 @@ package main_pkg;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Stack;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
 
 public class PathAnalizer extends Frame
 implements ActionListener, WindowListener
@@ -284,6 +289,27 @@ implements ActionListener, WindowListener
 					JPanel outputPanel = new JPanel();
 					outputFrame.add(outputPanel);
 					outputFrame.add(outputLabel);
+					try
+					{
+						Calendar cal = Calendar.getInstance();
+				        SimpleDateFormat sdf = new SimpleDateFormat("'created at' H:mm:ss a 'on' MM/dd/yyyy");
+				        String timeStamp = sdf.format(cal.getTime());
+						String[] result;
+						result = results.split("\n");
+						PrintWriter writer = new PrintWriter("output.txt", "UTF-8");
+						writer.println(timeStamp);
+						writer.println();
+						for(int i = 0; i < result.length; i++)
+						{
+							writer.println(result[i]);
+						}
+						
+						writer.close();
+					}
+					catch(IOException exception)
+					{
+						System.out.print(exception.getMessage());
+					}
 				}
 			}
 			else
