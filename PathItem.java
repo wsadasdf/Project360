@@ -6,14 +6,13 @@ public class PathItem
 	public int duration = 0;
 	private String name = "";
 	public ArrayList<String> dependencyStrings;
+	@SuppressWarnings("unused")
 	private String[] dependencies;
 	public PathItem nextItem = null;
 	private int length;
-	private boolean head = false;
-	private int depth;
 	public int headTime;
 	
-	
+	//constructor for node with dependencies (all other nodes)
 	public PathItem(int duration, String name, String[] dependencies)
 	{
 		this.duration = duration;
@@ -26,6 +25,8 @@ public class PathItem
 		}
 		this.length = 0;
 	}
+	
+	//constructor for the copy() function
 	public PathItem(int duration, String name, ArrayList<String> dependencies)
 	{
 		this.duration = duration;
@@ -34,6 +35,8 @@ public class PathItem
 		this.dependencyStrings = dependencies;
 		this.length = 0;
 	}
+	
+	//constructor for node with no dependencies (head node)
 	public PathItem(int duration, String name)
 	{
 		this.duration = duration;
@@ -42,56 +45,38 @@ public class PathItem
 		this.length = 0;
 	}
 	
-	public void addPath(PathItem toAdd)
-	{
-		this.nextItem = toAdd;
-	}
+	
+	//fuctions 
+	
 	public void display()
 	{
 		System.out.print("name: " + this.name+ "\nduration: " + this.duration + "\n");
 	}
+	
+
 	public String getName()
 	{
 		return this.name;
 	}
+	
 	
 	public int getDuration()
 	{
 		return this.duration;
 	}
 	
+	
 	public ArrayList<String> getDependencies()
 	{
 		return this.dependencyStrings;
 	}
 	
-	public int getSize()
-	{
-		int size = 1;
-		PathItem iterater = this.nextItem;
-		while(iterater != null)
-		{
-			size++;
-			iterater = iterater.nextItem;
-		}
-		return size;
-	}
-	
-	public int calcLength()
-	{
-		this.length = this.duration;
-		PathItem iterater = this.nextItem;
-		while(iterater != null)
-		{
-			this.length += iterater.getLength();
-		}
-		return this.length;
-	}
 	
 	public int getLength()
 	{
 		return this.length;
 	}
+	
 	
 	public PathItem copy()
 	{
@@ -100,23 +85,6 @@ public class PathItem
 		
 		return temp;
 	}
+
 	
-	
-	
-	public boolean isHead()
-	{
-		return head;
-	}
-	
-	public int getDepth()
-	{
-		this.depth = 1;
-		PathItem iter = this;
-		while(iter != null)
-		{
-			depth++;
-			iter = iter.nextItem;
-		}
-		return depth;
-	}
 }

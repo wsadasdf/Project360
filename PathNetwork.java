@@ -1,7 +1,6 @@
 package main_pkg;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 
 public class PathNetwork 
@@ -12,14 +11,14 @@ public class PathNetwork
 	public ArrayList<PathItem> nextItem;
 	public ArrayList<PathNetwork> children;
 	public int headTime;
+	
+	
+	//constructor
 	public PathNetwork(PathItem item)
 	{
 		this.item = item.copy();
 		children = new ArrayList<PathNetwork>(0);
 		duration = 0;
 	}
-	
-	
-	
-	
+		
 }
