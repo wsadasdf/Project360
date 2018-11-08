@@ -8,7 +8,6 @@ public class PathNetwork
 	public PathItem item;
 	public String name;
 	public int duration;
-	public ArrayList<PathItem> nextItem;
 	public ArrayList<PathNetwork> children;
 	public int headTime;
 	

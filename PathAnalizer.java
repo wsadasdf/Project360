@@ -33,11 +33,14 @@ implements ActionListener, WindowListener
 	private ArrayList<PathNetwork> paths = new ArrayList<PathNetwork>();
 	private ArrayList<PathNetwork> sortedPaths = new ArrayList<PathNetwork>();
 	private PathNetwork network;
+	private TextField reportField;
 	private ArrayList<PathItem> events = new ArrayList<PathItem>();
+	private ArrayList<PathItem> eventsCopy, sortedCopy;
 	
 	public PathAnalizer()
 	{
 		duration = 0;
+		reportField = new  TextField("",10);
 		critPath.setText("only critical");
 		setLayout(new FlowLayout());
 		add(new Label("Path Name "));
@@ -50,6 +53,8 @@ implements ActionListener, WindowListener
 		add(new Label("dependancies "));
 		dependencyField = new TextField("",10);
 		add(dependencyField);
+		add(new Label("report name"));
+		add(reportField);
 		add(critPath);
 		editButton = new Button("edit");
 		enterButton = new Button("enter");
@@ -68,9 +73,11 @@ implements ActionListener, WindowListener
 		add(restartButton);
 		quitButton = new Button("Quit");
 		add(quitButton);
+		Button report = new Button("generate report");
+		add(report);
 
 		//shan test end
-
+		report.addActionListener(this);
 		enterButton.addActionListener(this);
 		aboutButton.addActionListener(this);
 		helpButton.addActionListener(this);
@@ -96,6 +103,67 @@ implements ActionListener, WindowListener
 
 	public void actionPerformed(ActionEvent e) 
 	{
+		if(e.getActionCommand().equals("generate report"));
+		{
+			try
+			{
+				Calendar cal = Calendar.getInstance();
+		        SimpleDateFormat sdf = new SimpleDateFormat("'created at' H:mm:ss a 'on' MM/dd/yyyy");
+		        String timeStamp = sdf.format(cal.getTime());
+				String[] result;
+				result = results.split("\n");
+				PrintWriter writer = new PrintWriter(reportField.getText(), "UTF-8");
+				writer.println(timeStamp);
+				writer.println();
+				writer.println("report name: "+ reportField.getText());
+				writer.println();
+				writer.println("Activities ordered by duration");
+				writer.println();
+				sortedCopy = new ArrayList<PathItem>();
+				Iterator<PathItem> garbIter;
+				while(!eventsCopy.isEmpty())
+				{
+					int tempMax=0;
+					for(int i = 0; i < eventsCopy.size(); i++)
+					{
+						if(eventsCopy.get(i).duration >= tempMax)
+						{
+							tempMax = eventsCopy.get(i).duration;
+						}
+						
+					}
+					for(int i = 0; i < eventsCopy.size(); i++)
+					{
+						if(eventsCopy.get(i).duration == tempMax)
+						{
+							sortedCopy.add(eventsCopy.get(i));
+							eventsCopy.remove(i);
+						}
+					}
+				}
+				
+				
+				
+				garbIter = sortedCopy.iterator();
+				while(garbIter.hasNext())
+				{
+					PathItem garb = garbIter.next();
+					writer.println(garb.getName()+"("+garb.duration+")");
+				}
+				writer.println();
+				
+				for(int i = 0; i < result.length; i++)
+				{
+					writer.println(result[i]);
+				}
+				
+				writer.close();
+			}
+			catch(IOException exception)
+			{
+				System.out.print(exception.getMessage());
+			}
+		}
 		if(e.getActionCommand().equals("edit"))
 		{
 			int toChange = Integer.parseInt(durationField.getText());
@@ -197,6 +265,7 @@ implements ActionListener, WindowListener
 				
 		if(e.getActionCommand().equals("finish"))						//finish
 		{	
+			eventsCopy = (ArrayList<PathItem>)events.clone();
 			if(!events.isEmpty()) 
 			{
 				sortedPaths.clear();
@@ -295,27 +364,7 @@ implements ActionListener, WindowListener
 					JPanel outputPanel = new JPanel();
 					outputFrame.add(outputPanel);
 					outputFrame.add(outputLabel);
-					try
-					{
-						Calendar cal = Calendar.getInstance();
-				        SimpleDateFormat sdf = new SimpleDateFormat("'created at' H:mm:ss a 'on' MM/dd/yyyy");
-				        String timeStamp = sdf.format(cal.getTime());
-						String[] result;
-						result = results.split("\n");
-						PrintWriter writer = new PrintWriter("output.txt", "UTF-8");
-						writer.println(timeStamp);
-						writer.println();
-						for(int i = 0; i < result.length; i++)
-						{
-							writer.println(result[i]);
-						}
-						
-						writer.close();
-					}
-					catch(IOException exception)
-					{
-						System.out.print(exception.getMessage());
-					}
+					
 				}
 			}
 			else
@@ -411,14 +460,11 @@ implements ActionListener, WindowListener
 				if(!done)
 				{
 					temp.children.add(new PathNetwork(toInsert));
-					//toInsert.dependencyStrings.remove(temp.item.getName());
 					System.out.print(toInsert.getName() +"("+toInsert.getDuration()+ ")->");
 				}
 			}
 			else
 			{
-				
-				//System.out.print();
 				if(temp.children.size() > 0)
 				{
 					for(int i = 0; i < temp.children.size(); i++)
@@ -427,10 +473,6 @@ implements ActionListener, WindowListener
 					}
 				}
 			}
-			
-			
-			
-		//toInsert.dependencyStrings.remove(temp.item.getName());
 		return;
 	}
 	
