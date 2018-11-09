@@ -20,7 +20,7 @@ implements ActionListener, WindowListener
 	//variable block
 
 	private static final long serialVersionUID = 7942054704709588561L;
-	private boolean headCreated = false;
+	private boolean headCreated = false, created = false, added = false;
 	private boolean error = false;
 	private TextField name,durationField,dependencyField;
 	private String results = "";
@@ -35,7 +35,8 @@ implements ActionListener, WindowListener
 	private PathNetwork network;
 	private TextField reportField;
 	private ArrayList<PathItem> events = new ArrayList<PathItem>();
-	private ArrayList<PathItem> eventsCopy, sortedCopy;
+	private ArrayList<PathItem> eventsCopy, sortedCopy = new ArrayList<PathItem>();
+	private PathItem listAdd;
 	
 	public PathAnalizer()
 	{
@@ -102,6 +103,7 @@ implements ActionListener, WindowListener
 		System.exit(0);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void actionPerformed(ActionEvent e) 
 	{
 		if(e.getActionCommand().equals("Generate Report"));
@@ -120,8 +122,20 @@ implements ActionListener, WindowListener
 				writer.println();
 				writer.println("Activities ordered by duration");
 				writer.println();
-				sortedCopy = new ArrayList<PathItem>();
+				if(!created)
+				{
+					sortedCopy = new ArrayList<PathItem>();
+				}
+				
 				Iterator<PathItem> garbIter;
+				if(added)
+				{
+					eventsCopy.clear();
+					eventsCopy = (ArrayList<PathItem>)sortedCopy.clone();
+					sortedCopy.clear();
+					eventsCopy.add(listAdd);
+					added = false;
+				}
 				while(!eventsCopy.isEmpty())
 				{
 					int tempMax=0;
@@ -170,9 +184,20 @@ implements ActionListener, WindowListener
 			int toChange = Integer.parseInt(durationField.getText());
 			String nodeName = name.getText();
 			change(nodeName,toChange,network);
+			for(int i = 0; i < sortedCopy.size(); i++)
+			{
+				if(sortedCopy.get(i).getName().equals(nodeName))
+				{
+					sortedCopy.get(i).duration = toChange;
+				}
+			}
+			eventsCopy.clear();
+			eventsCopy = (ArrayList<PathItem>)sortedCopy.clone();
+			sortedCopy.clear();
 		}
 		if(e.getActionCommand().equals("Restart"))
 		{
+			created = false;
 			error = false;
 			headCreated = false;
 			itemName = "";
@@ -188,6 +213,8 @@ implements ActionListener, WindowListener
 			sortedPaths.clear();
 			maxDuration = 0;
 			results = "";
+			eventsCopy.clear();
+			sortedCopy.clear();
 		}
 		
 		if(e.getActionCommand().equals("Enter"))
@@ -200,7 +227,20 @@ implements ActionListener, WindowListener
 				
 				itemName = name.getText();
 				String temp = dependencyField.getText();
-				
+ 				if(eventsCopy != null)
+				{
+					if(temp.equals(""))
+					{
+						dependencies = null;
+						listAdd = new PathItem(duration,itemName);
+					}
+					else
+					{
+						dependencies = temp.split(",");
+						listAdd = new PathItem(duration,itemName,dependencies);					
+					}
+					added = true;
+				}
 				if(events.isEmpty())
 				{
 					if(temp.equals(""))
@@ -266,7 +306,13 @@ implements ActionListener, WindowListener
 				
 		if(e.getActionCommand().equals("Finish"))						//finish
 		{	
-			eventsCopy = (ArrayList<PathItem>)events.clone();
+			if(!created)
+			{
+				eventsCopy = (ArrayList<PathItem>)events.clone();
+				created = true;
+			}
+				
+			
 			if(!events.isEmpty()) 
 			{
 				sortedPaths.clear();
