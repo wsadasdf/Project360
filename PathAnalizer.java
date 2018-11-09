@@ -41,8 +41,8 @@ implements ActionListener, WindowListener
 	{
 		duration = 0;
 		reportField = new  TextField("",10);
-		critPath.setText("only critical");
-		setLayout(new FlowLayout());
+		critPath.setText("Only show critical path(s)");
+		setLayout(new GridLayout(10,10));
 		add(new Label("Path Name "));
 		name = new TextField("",10);
 		name.setEditable(true);
@@ -50,16 +50,17 @@ implements ActionListener, WindowListener
 		add(new Label("Path Duration "));
 		durationField = new TextField("",10);
 		add(durationField);
-		add(new Label("dependancies "));
+		add(new Label("Dependencies "));
 		dependencyField = new TextField("",10);
 		add(dependencyField);
-		add(new Label("report name"));
+		add(new Label("Report Name"));
 		add(reportField);
 		add(critPath);
-		editButton = new Button("edit");
-		enterButton = new Button("enter");
+		add(new Label(""));
+		editButton = new Button("Edit");
+		enterButton = new Button("Enter");
 		add(enterButton);
-		finishButton = new Button("finish");
+		finishButton = new Button("Finish");
 		add (finishButton);
 		
 
@@ -73,7 +74,7 @@ implements ActionListener, WindowListener
 		add(restartButton);
 		quitButton = new Button("Quit");
 		add(quitButton);
-		Button report = new Button("generate report");
+		Button report = new Button("Generate Report");
 		add(report);
 
 		//shan test end
@@ -87,7 +88,7 @@ implements ActionListener, WindowListener
 		editButton.addActionListener(this);
 		addWindowListener(this);
 		setTitle("Path Analizer");
-		setSize(250,250);
+		setSize(500,450);
 		setVisible(true);
 	}
 
@@ -103,7 +104,7 @@ implements ActionListener, WindowListener
 
 	public void actionPerformed(ActionEvent e) 
 	{
-		if(e.getActionCommand().equals("generate report"));
+		if(e.getActionCommand().equals("Generate Report"));
 		{
 			try
 			{
@@ -164,7 +165,7 @@ implements ActionListener, WindowListener
 				System.out.print(exception.getMessage());
 			}
 		}
-		if(e.getActionCommand().equals("edit"))
+		if(e.getActionCommand().equals("Edit"))
 		{
 			int toChange = Integer.parseInt(durationField.getText());
 			String nodeName = name.getText();
@@ -189,7 +190,7 @@ implements ActionListener, WindowListener
 			results = "";
 		}
 		
-		if(e.getActionCommand().equals("enter"))
+		if(e.getActionCommand().equals("Enter"))
 		{
 			
 			try
@@ -263,7 +264,7 @@ implements ActionListener, WindowListener
 		}	
 			
 				
-		if(e.getActionCommand().equals("finish"))						//finish
+		if(e.getActionCommand().equals("Finish"))						//finish
 		{	
 			eventsCopy = (ArrayList<PathItem>)events.clone();
 			if(!events.isEmpty()) 
@@ -343,7 +344,7 @@ implements ActionListener, WindowListener
 						}
 					}
 					printNetwork(sortedPaths);
-					results = "only critical paths\n" + results;
+					results = "Critical path(s): \n" + results;
 					System.out.print(results);
 				}
 				else if(!error)
@@ -384,7 +385,7 @@ implements ActionListener, WindowListener
 			helpFrame.setVisible(true);
 			helpFrame.setSize(425,650);
 			JLabel helpLabel = new JLabel();
-			helpLabel.setText("<html><p style=\"width:300px\">"+"The input consists of multiple occurences of the following: activity name, duration, and dependencies (predecessors).<br><br>There is no maximum on the number of activities and predecessors. <br><br>Activity names can be multiple characters. <br><br>Duration must be an integer.<br><br>If another user input is found, then an error is displayed, and the user must re-enter another input before proceeding. The starting node or nodes do not have predecessors. Once all inputs are completed, then the processing can begin.<br><br>Output:<br>Pressing the enter button enters the information that is in the input fields into a hidden list that will be printed upon pressing the finish button. Input field is then cleared.<br><br>Pressing the finish button prints a list of all paths in the network that were submitted, with the duration of each path. The output field consists of the names of all activities in the path, displayed in descending order of duration.<br><br>About:<br>Prompts a new window that explains the project introduction and the overview of the program.<br><br>Restart:<br>Clears all fields of any inputs or outputs and restarts the process of inputting. Upon clicking, all inputs and paths must be re-entered and resubmitted.<br><br>Quit:<br>Halts any processes and quits out of the program immediately. No data will be saved."+"</p></html>");
+			helpLabel.setText("<html><p style=\"width:300px\">"+"The input consists of multiple occurences of the following: activity name, duration, and dependencies (predecessors).<br><br>There is no maximum on the number of activities and predecessors. <br><br>Activity names can be multiple characters. <br><br>Duration must be an integer.<br><br>If another user input is found, then an error is displayed, and the user must re-f another input before proceeding. The starting node or nodes do not have predecessors. Once all inputs are completed, then the processing can begin.<br><br>Output:<br>Pressing the enter button enters the information that is in the input fields into a hidden list that will be printed upon pressing the finish button. Input field is then cleared.<br><br>Pressing the finish button prints a list of all paths in the network that were submitted, with the duration of each path. The output field consists of the names of all activities in the path, displayed in descending order of duration.<br><br>About:<br>Prompts a new window that explains the project introduction and the overview of the program.<br><br>Restart:<br>Clears all fields of any inputs or outputs and restarts the process of inputting. Upon clicking, all inputs and paths must be re-entered and resubmitted.<br><br>Quit:<br>Halts any processes and quits out of the program immediately. No data will be saved."+"</p></html>");
 			JPanel helpPanel = new JPanel();
 			helpFrame.add(helpPanel);
 			helpFrame.add(helpLabel);
@@ -396,7 +397,7 @@ implements ActionListener, WindowListener
 			aboutFrame.setVisible(true);
 			aboutFrame.setSize(425,450);
 			JLabel aboutLabel = new JLabel("Fillertext");
-			aboutLabel.setText("<html><p style=\"width:300px\">"+"Project Introduction:<br>The project is designed to analyze a network diagram and determine all the paths in the network. A consumer can continue to input the activity name, duration, and dependencies until they press the finish button, where the list of all the activity names and dependencies are displayed by duration amount in decreasing order.<br><br>Overview of the program:<br>The program analyzes a network diagram and determines all the paths in the network. There are certain fields for inputting information (activity name, duration, dependencies), a certain button that can reset the current activity list (restart), a button that brings up the help menu for any issues regarding the program (restart), and another button that allows a user to exit out of the program in its entirety (quit). The output of the program is a network diagram with a list of the user-inputted activity names, sorted in decreasing order. Afterwards, there should be another prompt that allows one to reset the field and continue again.<br><br>This application is a team project assignment for CSE360: Introduction to Software Engineering.<br><br>Team Members:<br>Duncan Everhart<br>Shaun Xiong"+"</p></html>");
+			aboutLabel.setText("<html><p style=\"width:300px\">"+"Project Introduction:<br>The project is designed to analyze a network diagram and determine all the paths in the network. A consumer can continue to input the activity name, duration, and dependencies until they press the finish button, where the list of all the activity names and dependencies are displayed by duration amount in decreasing order.<br><br>Overview of the program:<br>The program analyzes a network diagram and determines all the paths in the network. There are certain fields for inputting information (activity name, duration, dependencies), a certain button that can reset the current activity list (restart), a button that brings up the help menu for any issues regarding the program (restart), and another button that allows a user to exit out of the program in its entirety (quit). The output of the program is a network diagram with a list of the user-inputted activity names, sorted in decreasing order. Afterwards, there should be another prompt that allows the user to reset the field and continue again.<br><br>This application is a team project assignment for CSE360: Introduction to Software Engineering.<br><br>Team Members:<br>Duncan Everhart<br>Shaun Xiong"+"</p></html>");
 			JPanel aboutPanel = new JPanel();
 			aboutFrame.add(aboutPanel);
 			aboutFrame.add(aboutLabel);
