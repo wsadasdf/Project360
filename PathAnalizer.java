@@ -328,8 +328,7 @@ implements ActionListener, WindowListener
 						{
 							error = true;
 							JPanel panel = new JPanel();
-							JOptionPane.showMessageDialog(panel, "disjoint node detected"
-									+ "", "Error", JOptionPane.ERROR_MESSAGE);
+							JOptionPane.showMessageDialog(panel, "disjoint node detected" + "", "Error", JOptionPane.ERROR_MESSAGE);
 							break;
 						}
 						else
@@ -390,13 +389,15 @@ implements ActionListener, WindowListener
 						}
 					}
 					printNetwork(sortedPaths);
-					results = "Critical path(s): \n" + results;
+					//String results2 = ("Critical Path(s): \n" + results);
+					results = ("<html><p style=\"width:300px\">"+"Critical path(s): "+"<br>"+ results +"</p></html>");
 					System.out.print(results);
 				}
 				else if(!error)
 				{
 					printNetwork(sortedPaths);
-					results = "all paths\n" + results;
+					//String results2 = ("All Path(s): \n" + results);
+					results = ("<html><p style=\"width:300px\">"+"All path(s): "+"<br>"+ results +"</p></html>");
 					System.out.print(results);
 				}
 				
@@ -407,20 +408,24 @@ implements ActionListener, WindowListener
 					outputFrame.setVisible(true);
 					outputFrame.setSize(425,650);
 					JLabel outputLabel = new JLabel();
-					outputLabel.setText("<html><p style=\"width:300px\">"+results+"<br><br>"+"</p></html>");
+					outputLabel.setText("<html><p style=\"width:300px\">"+ results+"</p></html>");
 					JPanel outputPanel = new JPanel();
 					outputFrame.add(outputPanel);
 					outputFrame.add(outputLabel);
-					
 				}
 			}
 			else
 			{
 				JPanel panel = new JPanel();
-				JOptionPane.showMessageDialog(panel, "no events entered"
-						+ "", "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(panel, "no events entered" + "", "Error", JOptionPane.ERROR_MESSAGE);
 			}
-			
+			//LazyFix
+			results = results.replace('"',' ');
+			results = results.replaceAll("<p style= width:300px >", "");
+			results = results.replaceAll("<html>", "");
+			results = results.replaceAll("</html>", "");
+			results = results.replaceAll("</p>","");
+			results = results.replaceAll("<br>","\n");
 		}
 
 		//shantest
@@ -467,9 +472,9 @@ implements ActionListener, WindowListener
 			PathNetwork temp = iter.next();
 			path(temp);
 			results += temp.item.headTime;
-			results += "\n";
+			results += "<br>";
+			//results += ("<html>"+"<br>"+"</p></html>");
 		}
-		
 		return;
 	}
 	
